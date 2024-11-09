@@ -8,34 +8,41 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float cameraSensitivity;
     [SerializeField] float playerSpeed;
 
+    CharacterController charController;
+
     private Rigidbody rb;
     private Vector2 movementInput;
-
-    private float camClampValue = 90.0f;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        charController = GetComponent<CharacterController>();
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
-    private void FixedUpdate()
+    private void LateUpdate()
     {
-        var movement = new Vector3(movementInput.x, 0, movementInput.y);
-        gameObject.transform.Translate( movement * playerSpeed * Time.deltaTime);
+        if (movementInput == null) return;
+        var movement = movementInput.x * transform.right + movementInput.y * transform.forward;
+
+
+        charController.Move(movement * playerSpeed * Time.deltaTime);
     }
 
     void OnLook(InputValue rotation) {
+        //Rotate Camera Up/Down
         Vector2 inputRot = rotation.Get<Vector2>();
-        Vector3 camRot = cam.transform.rotation.eulerAngles;
-        Vector3 playerRot = transform.rotation.eulerAngles;
-        camRot.x -= inputRot.y * cameraSensitivity * Time.deltaTime;
-        cam.transform.rotation = Quaternion.Euler(camRot);
 
-        playerRot.y += inputRot.x * cameraSensitivity * Time.deltaTime;
-        transform.rotation = Quaternion.Euler(playerRot);
-        //Rotate player
+        float camRotX = cam.transform.rotation.eulerAngles.x;
+        camRotX -= inputRot.y * cameraSensitivity * Time.deltaTime;
+
+        cam.transform.localRotation = Quaternion.Euler(camRotX,0f,0f);
+
+        //Rotate Player Left/Right
+        transform.Rotate(Vector3.up * inputRot.x * cameraSensitivity * Time.deltaTime);
+
         
     }
 
