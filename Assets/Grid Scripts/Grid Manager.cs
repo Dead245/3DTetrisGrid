@@ -8,6 +8,8 @@ public class GridManager : MonoBehaviour
 
     private ItemScriptableObject[] itemsInGrid;
 
+    private bool[,,] occupiedStatus;
+
     void Start()
     {
         if (gridInfo == null)
@@ -15,6 +17,8 @@ public class GridManager : MonoBehaviour
             Debug.LogError("Grid Scriptable Object not assigned!");
             return;
         }
+
+        occupiedStatus = new bool[gridInfo.GridSize.x, gridInfo.GridSize.y, gridInfo.GridSize.z];
 
         GenerateGrid();
     }
@@ -55,4 +59,23 @@ public class GridManager : MonoBehaviour
         return false;
     }
 
+    // Getter for the occupied status of a specific cell
+    public bool IsCellOccupied(Vector3Int position)
+    {
+        // Check if the position is within the bounds of the grid
+        if (gridInfo.IsWithinBounds(position))
+        {
+            return occupiedStatus[position.x, position.y, position.z];
+        }
+        return false;
+    }
+
+    // Setter for marking a cell as occupied or unoccupied
+    public void SetCellOccupied(Vector3Int position, bool isOccupied)
+    {
+        if (gridInfo.IsWithinBounds(position))
+        {
+            occupiedStatus[position.x, position.y, position.z] = isOccupied;
+        }
+    }
 }
