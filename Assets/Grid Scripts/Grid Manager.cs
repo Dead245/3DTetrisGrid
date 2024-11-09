@@ -37,7 +37,9 @@ public class GridManager : MonoBehaviour
                 for (int z = 0; z < gridInfo.GridSize.z; z++)
                 {
                     // Temp create cube to show grid
-                    Vector3 position = new Vector3(x, y, z);
+                    Vector3 position = new Vector3(transform.position.x + x,
+                                                   transform.position.y + y,
+                                                   transform.position.z + z);
                     GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     cube.transform.position = position;
                     cube.name = $"Cell_{x}_{y}_{z}";

@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static UnityEngine.Rendering.DebugUI.Table;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -12,7 +11,7 @@ public class PlayerMovement : MonoBehaviour
 
     private Rigidbody rb;
     private Vector2 movementInput;
-
+    private Vector2 inputRot;
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -24,26 +23,20 @@ public class PlayerMovement : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (movementInput == null) return;
+        //Move Character
         var movement = movementInput.x * transform.right + movementInput.y * transform.forward;
-
-
         charController.Move(movement * playerSpeed * Time.deltaTime);
+
+        //Rotate Camera Up/Down
+        float camRotX = cam.transform.rotation.eulerAngles.x;
+        camRotX -= inputRot.y * cameraSensitivity * Time.deltaTime;
+        cam.transform.localRotation = Quaternion.Euler(camRotX, 0f, 0f);
+        //Rotate Player Left/Right
+        transform.Rotate(Vector3.up * inputRot.x * cameraSensitivity * Time.deltaTime);
     }
 
     void OnLook(InputValue rotation) {
-        //Rotate Camera Up/Down
-        Vector2 inputRot = rotation.Get<Vector2>();
-
-        float camRotX = cam.transform.rotation.eulerAngles.x;
-        camRotX -= inputRot.y * cameraSensitivity * Time.deltaTime;
-
-        cam.transform.localRotation = Quaternion.Euler(camRotX,0f,0f);
-
-        //Rotate Player Left/Right
-        transform.Rotate(Vector3.up * inputRot.x * cameraSensitivity * Time.deltaTime);
-
-        
+        inputRot = rotation.Get<Vector2>();
     }
 
     void OnMove(InputValue position)
@@ -59,5 +52,4 @@ public class PlayerMovement : MonoBehaviour
     void OnJump() {
         Debug.Log("Jump");
     }
-
 }

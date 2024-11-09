@@ -1,6 +1,4 @@
-using UnityEditor.PackageManager;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 [SelectionBase]
 public class ItemManager : MonoBehaviour
