@@ -19,12 +19,7 @@ public class ItemManager : MonoBehaviour
             Debug.LogError($"{this.name}'s ItemManager tried to generate an Item while it was Null!");
             return;
         }
-
-        //[TODO] Load the 3D model of the Item instead of this
-        foreach (var loc in item.ShapeOffsets) {
-            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cube.transform.SetParent(this.transform);
-            cube.transform.position = this.transform.position + loc;
-        }
+        //[TODO] Load the 3D model of the Item
+        
     }
 }

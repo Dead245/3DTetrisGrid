@@ -16,7 +16,9 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         charController = GetComponent<CharacterController>();
-
+        if (charController == null) { 
+            Debug.LogError($"{name}'s Player Movement Script doesn't have a \"Character Controller\" component!"); 
+        }
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
