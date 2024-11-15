@@ -1,6 +1,6 @@
 {
     "name": "gridCoreAssembly",
-    "rootNamespace": "",
+    "rootNamespace": "GridSystem",
     "references": [
         "Unity.InputSystem"
     ],
