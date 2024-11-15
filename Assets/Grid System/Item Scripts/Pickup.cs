@@ -12,8 +12,6 @@ namespace GridSystem.Pickup
         private LayerMask hitLayer;
         [SerializeField]
         private float itemLerpSpeed = 1f;
-        [SerializeField]
-        float maxItemSpeed = 20f;
 
         private bool itemGrabbed;
         private GameObject grabbedItem;
@@ -62,8 +60,6 @@ namespace GridSystem.Pickup
             {
                 //Item Movement Handling
                 Vector3 targetVelocity = (itemGrabPointTransform.position - grabbedItem.transform.position) / Time.fixedDeltaTime;
-                targetVelocity = Vector3.ClampMagnitude(targetVelocity, maxItemSpeed);
-
                 itemRB.linearVelocity = targetVelocity;
 
                 //Item Rotation Handling (slows it down)

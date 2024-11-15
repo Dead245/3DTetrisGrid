@@ -39,6 +39,7 @@ namespace GridSystem.Core
                                                        transform.position.y + y,
                                                        transform.position.z + z);
                         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                        Destroy(cube.GetComponent<BoxCollider>());
                         cube.transform.position = position;
                         cube.name = $"Cell_{x}_{y}_{z}";
                         cube.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
@@ -49,7 +50,6 @@ namespace GridSystem.Core
 
         private bool AddItem(ItemScriptableObject item, Vector3Int position)
         {
-
             return false;
         }
 
@@ -58,7 +58,6 @@ namespace GridSystem.Core
             return false;
         }
 
-        // Getter for the occupied status of a specific cell
         public bool IsCellOccupied(Vector3Int position)
         {
             // Check if the position is within the bounds of the grid
@@ -69,7 +68,6 @@ namespace GridSystem.Core
             return false;
         }
 
-        // Setter for marking a cell as occupied or unoccupied
         public void SetCellOccupied(Vector3Int position, bool isOccupied)
         {
             if (gridInfo.IsWithinBounds(position))
