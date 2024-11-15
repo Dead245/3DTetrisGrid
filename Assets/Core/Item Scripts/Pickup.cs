@@ -11,8 +11,9 @@ namespace GridSystem.Pickup
         [SerializeField]
         private LayerMask hitLayer;
         [SerializeField]
-        private float itemLerpSpeed = 10f;
-
+        private float itemLerpSpeed = 1f;
+        [SerializeField]
+        float maxItemSpeed = 20f;
 
         private bool itemGrabbed;
         private GameObject grabbedItem;
@@ -41,7 +42,6 @@ namespace GridSystem.Pickup
             if (itemObject.TryGetComponent<Rigidbody>(out itemRB))
             {
                 itemGrabbed = true;
-                itemRB.useGravity = false;
                 grabbedItem = itemObject;
                 return;
             }
@@ -52,18 +52,22 @@ namespace GridSystem.Pickup
         }
         private void DropItem()
         {
-            itemRB.useGravity = true;
             grabbedItem = null;
             itemGrabbed = false;
         }
 
-        //Still jitters at high speeds while picked up...
         private void FixedUpdate()
         {
             if (grabbedItem != null)
             {
-                Vector3 itemMovement = Vector3.Lerp(grabbedItem.transform.position, itemGrabPointTransform.position, Time.fixedDeltaTime * itemLerpSpeed);
-                itemRB.MovePosition(itemMovement);
+                //Item Movement Handling
+                Vector3 targetVelocity = (itemGrabPointTransform.position - grabbedItem.transform.position) / Time.fixedDeltaTime;
+                targetVelocity = Vector3.ClampMagnitude(targetVelocity, maxItemSpeed);
+
+                itemRB.linearVelocity = targetVelocity;
+
+                //Item Rotation Handling (slows it down)
+                itemRB.angularVelocity = Vector3.Lerp(itemRB.angularVelocity, Vector3.zero, itemLerpSpeed * Time.fixedDeltaTime);
             }
         }
     }

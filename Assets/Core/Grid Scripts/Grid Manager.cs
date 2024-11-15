@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using GridSystem.Items;
 
 namespace GridSystem.Core
 {
