@@ -1,6 +1,6 @@
-using System;
 using UnityEngine;
 using GridSystem.Items;
+using System.Collections.Generic;
 
 namespace GridSystem.Core
 {
@@ -8,9 +8,10 @@ namespace GridSystem.Core
     {
         [SerializeField]
         private GridScriptableObject gridInfo;
+        [SerializeField]
+        private float cellSize = 1f;
 
-        private ItemScriptableObject[] itemsInGrid;
-
+        private Dictionary<Vector3Int,ItemScriptableObject> itemsInGrid = new();
         private bool[,,] occupiedStatus;
 
         void Start()
@@ -22,30 +23,6 @@ namespace GridSystem.Core
             }
 
             occupiedStatus = new bool[gridInfo.GridSize.x, gridInfo.GridSize.y, gridInfo.GridSize.z];
-
-            GenerateGrid();
-        }
-
-        private void GenerateGrid()
-        {
-            for (int x = 0; x < gridInfo.GridSize.x; x++)
-            {
-                for (int y = 0; y < gridInfo.GridSize.y; y++)
-                {
-                    for (int z = 0; z < gridInfo.GridSize.z; z++)
-                    {
-                        // Temp create cube to show grid
-                        Vector3 position = new Vector3(transform.position.x + x,
-                                                       transform.position.y + y,
-                                                       transform.position.z + z);
-                        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                        Destroy(cube.GetComponent<BoxCollider>());
-                        cube.transform.position = position;
-                        cube.name = $"Cell_{x}_{y}_{z}";
-                        cube.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
-                    }
-                }
-            }
         }
 
         private bool AddItem(ItemScriptableObject item, Vector3Int position)
@@ -73,6 +50,29 @@ namespace GridSystem.Core
             if (gridInfo.IsWithinBounds(position))
             {
                 occupiedStatus[position.x, position.y, position.z] = isOccupied;
+            }
+        }
+
+        public Vector3 GetNearestCell(Vector3 position)
+        {
+            Vector3 localPos = position - transform.position;
+            int x = Mathf.RoundToInt(localPos.x / cellSize);
+            int y = Mathf.RoundToInt(localPos.y / cellSize);
+            int z = Mathf.RoundToInt(localPos.z / cellSize);
+            return new Vector3(x * cellSize, y * cellSize, z * cellSize) + transform.position;
+        }
+
+        private void OnDrawGizmos()
+        {
+            var cellVector = new Vector3(cellSize,cellSize,cellSize);
+            Gizmos.color = Color.green;
+            for (int x = 0; x < gridInfo.GridSize.x; x++) {
+                for (int y = 0; y < gridInfo.GridSize.y; y++) {
+                    for (int z = 0; z < gridInfo.GridSize.z; z++) {
+                        Vector3 center = new Vector3(x * cellSize, y * cellSize, z * cellSize) + this.transform.position;
+                        Gizmos.DrawWireCube(center, cellVector);
+                    }
+                }
             }
         }
     }

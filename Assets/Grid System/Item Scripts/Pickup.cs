@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GridSystem.Pickup
+namespace GridSystem.PickupLogic
 {
     public class Pickup : MonoBehaviour
     {
@@ -34,7 +34,6 @@ namespace GridSystem.Pickup
                 PickupItem(hitInfo.collider.gameObject);
             }
         }
-
         private void PickupItem(GameObject itemObject)
         {
             if (itemObject.TryGetComponent<Rigidbody>(out itemRB))
@@ -62,7 +61,7 @@ namespace GridSystem.Pickup
                 Vector3 targetVelocity = (itemGrabPointTransform.position - grabbedItem.transform.position) / Time.fixedDeltaTime;
                 itemRB.linearVelocity = targetVelocity;
 
-                //Item Rotation Handling (slows it down)
+                //Item Rotation Handling
                 itemRB.angularVelocity = Vector3.Lerp(itemRB.angularVelocity, Vector3.zero, itemLerpSpeed * Time.fixedDeltaTime);
             }
         }
