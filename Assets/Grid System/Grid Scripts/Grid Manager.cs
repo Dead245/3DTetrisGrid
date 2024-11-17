@@ -14,6 +14,8 @@ namespace GridSystem.Core
         private Dictionary<Vector3Int,ItemScriptableObject> itemsInGrid = new();
         private bool[,,] occupiedStatus;
 
+        private Bounds gridBounds;
+
         void Start()
         {
             if (gridInfo == null)
@@ -23,6 +25,9 @@ namespace GridSystem.Core
             }
 
             occupiedStatus = new bool[gridInfo.GridSize.x, gridInfo.GridSize.y, gridInfo.GridSize.z];
+            Vector3 boundsVector = new Vector3(cellSize / 2, cellSize / 2, cellSize / 2);
+            Vector3 sizeVector = gridInfo.GridSize;
+            gridBounds = new Bounds(transform.position, sizeVector * cellSize);
         }
 
         private bool AddItem(ItemScriptableObject item, Vector3Int position)
@@ -55,25 +60,25 @@ namespace GridSystem.Core
 
         public Vector3 GetNearestCell(Vector3 position)
         {
+            if (!gridBounds.Contains(position))
+            {
+                //Position is outside the grid bounds, return an "invalid" position
+                return new Vector3 (1000000,1000000,1000000); //gotta be a better way right?
+            }
+
             Vector3 localPos = position - transform.position;
             int x = Mathf.RoundToInt(localPos.x / cellSize);
             int y = Mathf.RoundToInt(localPos.y / cellSize);
             int z = Mathf.RoundToInt(localPos.z / cellSize);
             return new Vector3(x * cellSize, y * cellSize, z * cellSize) + transform.position;
         }
-
+        
         private void OnDrawGizmos()
         {
             var cellVector = new Vector3(cellSize,cellSize,cellSize);
             Gizmos.color = Color.green;
-            for (int x = 0; x < gridInfo.GridSize.x; x++) {
-                for (int y = 0; y < gridInfo.GridSize.y; y++) {
-                    for (int z = 0; z < gridInfo.GridSize.z; z++) {
-                        Vector3 center = new Vector3(x * cellSize, y * cellSize, z * cellSize) + this.transform.position;
-                        Gizmos.DrawWireCube(center, cellVector);
-                    }
-                }
-            }
+            Gizmos.DrawWireCube(gridBounds.center, gridBounds.size);
+            Gizmos.DrawWireCube(gridBounds.center, cellVector);
         }
     }
 }
