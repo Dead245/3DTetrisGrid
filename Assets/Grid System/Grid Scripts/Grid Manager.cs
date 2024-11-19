@@ -30,17 +30,17 @@ namespace GridSystem.Core
             gridBounds = new Bounds(transform.position, sizeVector * cellSize);
         }
 
-        private bool AddItem(ItemScriptableObject item, Vector3Int position)
+        public bool AddItem(ItemScriptableObject item, Vector3 position)
         {
             return false;
         }
 
-        private bool RemoveItem(ItemScriptableObject item, Vector3Int position)
+        public bool RemoveItem(ItemScriptableObject item, Vector3 position)
         {
             return false;
         }
 
-        public bool IsCellOccupied(Vector3Int position)
+        private bool IsCellOccupied(Vector3Int position)
         {
             // Check if the position is within the bounds of the grid
             if (gridInfo.IsWithinBounds(position))
@@ -50,7 +50,7 @@ namespace GridSystem.Core
             return false;
         }
 
-        public void SetCellOccupied(Vector3Int position, bool isOccupied)
+        private void SetCellOccupied(Vector3Int position, bool isOccupied)
         {
             if (gridInfo.IsWithinBounds(position))
             {

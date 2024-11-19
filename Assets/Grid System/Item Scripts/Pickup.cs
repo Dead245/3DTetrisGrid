@@ -1,4 +1,5 @@
 using GridSystem.Core;
+using GridSystem.Items;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -60,11 +61,21 @@ namespace GridSystem.PickupLogic
         }
         private void DropItem()
         {
+            if (interactingGridManager != null) {
+                //Add to {interactingGridManager}'s grid at snapPoint?
+                ItemScriptableObject item = grabbedItem.gameObject.GetComponent<ItemScriptableObject>();
+                if (interactingGridManager.AddItem(item, interactingGridManager.GetNearestCell(itemGrabPointTransform.position))) {
+                    Debug.Log("Add Item worked");
+                    grabbedItem = null;
+                    itemGrabbed = false;
+                } else {
+                    Debug.Log("Add Item failed");
+                }
+                //!!!Still need to handle items bigger than 1 cell and rotation!!!
+                return;
+            }
             grabbedItem = null;
             itemGrabbed = false;
-            if (interactingGridManager != null) {
-                //Add to {interactingGridManager}'s grid at snapPoint
-            }
         }
 
         private Vector3 FindNearestSnapPoint(Vector3 position) {
