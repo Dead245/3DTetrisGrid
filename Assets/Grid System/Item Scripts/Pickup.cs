@@ -62,25 +62,21 @@ namespace GridSystem.PickupLogic
         {
             grabbedItem = null;
             itemGrabbed = false;
+            if (interactingGridManager != null) {
+                //Add to {interactingGridManager}'s grid at snapPoint
+            }
         }
 
         private Vector3 FindNearestSnapPoint(Vector3 position) {
             Vector3 closestPoint = invalidPoint;
-            float closestDistance = float.MaxValue;
 
+            interactingGridManager = null;
             foreach (var grid in grids)
-            {
-                interactingGridManager = null;
+            {   //Swapping snapPoint to just be closestPoint makes it not update closestPoint correctly???
                 Vector3 snapPoint = grid.GetNearestCell(itemGrabPointTransform.position);
                 if (snapPoint == invalidPoint) continue; // Ignore "invalid" return
-
-                float distance = Vector3.Distance(itemGrabPointTransform.position, snapPoint);
-                if (distance < closestDistance)
-                {
-                    closestPoint = snapPoint;
-                    closestDistance = distance;
-                    interactingGridManager = grid;
-                }
+                closestPoint = snapPoint;
+                interactingGridManager = grid;
             }
             return closestPoint;
         }
