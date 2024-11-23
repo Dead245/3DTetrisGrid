@@ -50,6 +50,12 @@ namespace GridSystem.PickupLogic
         {
             if (itemObject.TryGetComponent<Rigidbody>(out itemRB))
             {
+                if (itemRB.isKinematic) { //Means it is in a grid
+                    Vector3Int itemCell = itemObject.GetComponent<ItemManager>().gridCellOrigin;
+                    interactingGridManager = itemObject.GetComponent<ItemManager>().gridManager;
+                    interactingGridManager.RemoveItem(itemCell);
+                    itemRB.isKinematic = false;
+                }
                 itemGrabbed = true;
                 grabbedItem = itemObject;
                 return;
@@ -63,13 +69,10 @@ namespace GridSystem.PickupLogic
         {
             if (interactingGridManager != null) {
                 //Add to {interactingGridManager}'s grid
-                ItemScriptableObject item = grabbedItem.gameObject.GetComponent<ItemManager>().Item;
-                if (interactingGridManager.AddItem(item, snappedCell)){
+                if (interactingGridManager.AddItem(grabbedItem, snappedCell)) {
                     Debug.Log("Add Item worked");
                     grabbedItem = null;
                     itemGrabbed = false;
-                } else {
-                    Debug.Log("Add Item failed");
                 }
                 //!!!Still need to handle items bigger than 1 cell and rotation!!!
                 return;
@@ -84,7 +87,7 @@ namespace GridSystem.PickupLogic
             interactingGridManager = null;
             foreach (var grid in grids)
             {   //Swapping snapPoint to just be closestPoint makes it not update closestPoint correctly???
-                Vector3 snapPoint = grid.GetNearestCell(position);
+                Vector3 snapPoint = grid.GetNearestEmptyCell(position);
                 if (snapPoint == invalidPoint) continue; // Ignore "invalid" return
                 closestPoint = snapPoint;
                 interactingGridManager = grid;

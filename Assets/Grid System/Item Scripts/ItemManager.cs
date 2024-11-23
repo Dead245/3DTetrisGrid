@@ -1,10 +1,13 @@
 using UnityEngine;
+using GridSystem.Core;
 
 namespace GridSystem.Items
 {
     [SelectionBase]
     public class ItemManager : MonoBehaviour
     {
+        public GridManager gridManager; //For when it supposed to be in a grid.
+        public Vector3Int gridCellOrigin;
         //Eventually remove the need to set the item beforehand.
         [SerializeField]
         private ItemScriptableObject item;
