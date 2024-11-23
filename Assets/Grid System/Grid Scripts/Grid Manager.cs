@@ -30,8 +30,9 @@ namespace GridSystem.Core
             gridBounds = new Bounds(transform.position, sizeVector * cellSize);
         }
 
-        public bool AddItem(ItemScriptableObject item, Vector3 position)
+        public bool AddItem(ItemScriptableObject item, Vector3Int cellPosition)
         {
+            Debug.Log($"{cellPosition}");
             return false;
         }
 
@@ -65,14 +66,18 @@ namespace GridSystem.Core
                 //Position is outside the grid bounds, return an "invalid" position
                 return new Vector3 (1000000,1000000,1000000); //gotta be a better way right?
             }
-
             Vector3 localPos = position - transform.position;
-            int x = Mathf.RoundToInt(localPos.x / cellSize);
-            int y = Mathf.RoundToInt(localPos.y / cellSize);
-            int z = Mathf.RoundToInt(localPos.z / cellSize);
+            float invCellSize = 1f/ cellSize;
+            int x = Mathf.RoundToInt(localPos.x * invCellSize);
+            int y = Mathf.RoundToInt(localPos.y * invCellSize);
+            int z = Mathf.RoundToInt(localPos.z * invCellSize);
             return new Vector3(x * cellSize, y * cellSize, z * cellSize) + transform.position;
         }
-        
+        public Vector3Int GetCell(Vector3 position) {
+            Vector3 calc = (position - transform.position) / cellSize;
+            Vector3Int cellLocation = Vector3Int.FloorToInt(calc);
+            return cellLocation;
+        }
         private void OnDrawGizmos()
         {
             var cellVector = new Vector3(cellSize,cellSize,cellSize);

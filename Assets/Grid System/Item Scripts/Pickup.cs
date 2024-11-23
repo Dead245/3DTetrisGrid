@@ -1,7 +1,6 @@
 using GridSystem.Core;
 using GridSystem.Items;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace GridSystem.PickupLogic
 {
@@ -22,6 +21,7 @@ namespace GridSystem.PickupLogic
 
         private GridManager[] grids;
         private GridManager interactingGridManager = null;
+        private Vector3Int snappedCell;
         private Vector3 invalidPoint = new Vector3(1000000, 1000000, 1000000);
 
         private void Start()
@@ -62,9 +62,9 @@ namespace GridSystem.PickupLogic
         private void DropItem()
         {
             if (interactingGridManager != null) {
-                //Add to {interactingGridManager}'s grid at snapPoint?
-                ItemScriptableObject item = grabbedItem.gameObject.GetComponent<ItemScriptableObject>();
-                if (interactingGridManager.AddItem(item, interactingGridManager.GetNearestCell(itemGrabPointTransform.position))) {
+                //Add to {interactingGridManager}'s grid
+                ItemScriptableObject item = grabbedItem.gameObject.GetComponent<ItemManager>().Item;
+                if (interactingGridManager.AddItem(item, snappedCell)){
                     Debug.Log("Add Item worked");
                     grabbedItem = null;
                     itemGrabbed = false;
@@ -84,7 +84,7 @@ namespace GridSystem.PickupLogic
             interactingGridManager = null;
             foreach (var grid in grids)
             {   //Swapping snapPoint to just be closestPoint makes it not update closestPoint correctly???
-                Vector3 snapPoint = grid.GetNearestCell(itemGrabPointTransform.position);
+                Vector3 snapPoint = grid.GetNearestCell(position);
                 if (snapPoint == invalidPoint) continue; // Ignore "invalid" return
                 closestPoint = snapPoint;
                 interactingGridManager = grid;
@@ -102,6 +102,7 @@ namespace GridSystem.PickupLogic
                     //Snap to grid positions
                     targetVelocity = (nearestSnapPoint - itemRB.position) / Time.fixedDeltaTime;
                     itemRB.linearVelocity = targetVelocity;
+                    snappedCell = interactingGridManager.GetCell(nearestSnapPoint);
                     //Item Rotation Handling
                     itemRB.angularVelocity = Vector3.zero;
                     itemRB.rotation = Quaternion.identity; //Grids cannot be rotated due to how they work with Bounds, for now

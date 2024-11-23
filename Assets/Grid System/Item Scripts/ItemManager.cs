@@ -9,6 +9,7 @@ namespace GridSystem.Items
         [SerializeField]
         private ItemScriptableObject item;
 
+        public ItemScriptableObject Item => item;
         //[TODO] Serialized Field of the 3D model of the item
 
         private void OnEnable()
