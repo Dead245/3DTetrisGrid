@@ -155,6 +155,7 @@ MonoBehaviour:
   gridManager: {fileID: 0}
   gridCellOrigin: {x: 0, y: 0, z: 0}
   item: {fileID: 11400000, guid: 01766f6cc43efda4884145b9cf24ba2f, type: 2}
+  itemSize: 0.5
 --- !u!65 &35212154
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -333,7 +334,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridManager: {fileID: 0}
   gridCellOrigin: {x: 0, y: 0, z: 0}
-  item: {fileID: 11400000, guid: 01766f6cc43efda4884145b9cf24ba2f, type: 2}
+  item: {fileID: 11400000, guid: 8364c1d574a29ed42b175868e471fb29, type: 2}
+  itemSize: 0.5
 --- !u!65 &105613933
 BoxCollider:
   m_ObjectHideFlags: 0
