@@ -26,12 +26,17 @@ namespace GridSystem.Core
             }
 
             occupiedStatus = new bool[gridInfo.GridSize.x, gridInfo.GridSize.y, gridInfo.GridSize.z];
-            Vector3 boundsVector = new Vector3(cellSize / 2, cellSize / 2, cellSize / 2);
             Vector3 sizeVector = gridInfo.GridSize;
             gridBounds = new Bounds(transform.position, sizeVector * cellSize);
         }
 
         public bool AddItem(GameObject item, Vector3Int cellPosition) {
+            //Check if every cell of the item can fit.
+            if (!CheckItem(item.GetComponent<ItemManager>(), cellPosition)) {
+                Debug.Log("Item Can't fit there.");    
+                return false;
+            }
+
             SetCellOccupied(cellPosition, true);
             item.GetComponent<Rigidbody>().isKinematic = true;
             itemsInGrid.Add(cellPosition,item);
@@ -50,17 +55,32 @@ namespace GridSystem.Core
             SetCellOccupied(cellPosition, false);
             return true;
         }
-        
+
+        private bool CheckItem(ItemManager itemMang, Vector3Int cellPos) {
+            Debug.Log("Checking Item...");
+            foreach (var cell in itemMang.Item.ShapeOffsets) {
+                Vector3 floatCell = cell;
+                if (!gridBounds.Contains(itemMang.transform.position + (floatCell * cellSize))) return false;
+                if (IsCellOccupied(cell + cellPos)) return false;
+            }
+            Debug.Log("Item can fit.");
+            return true;
+        }
+        private bool itemCellInGrid(GameObject item, Vector3Int cell)
+        {
+            Vector3 itemPos = item.transform.position;
+            Vector3 floatCell = cell;
+            return gridBounds.Contains(itemPos + (floatCell * cellSize));
+        }
+
         #region Cell Functions
         private bool IsCellOccupied(Vector3Int position) {
-            // Check if the position is within the bounds of the grid
             if (gridInfo.IsWithinBounds(position))
             {
                 return occupiedStatus[position.x, position.y, position.z];
             }
             return false;
         }
-
         private void SetCellOccupied(Vector3Int position, bool isOccupied) {
             if (gridInfo.IsWithinBounds(position))
             {

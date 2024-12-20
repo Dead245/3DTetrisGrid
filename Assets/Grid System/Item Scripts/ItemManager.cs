@@ -1,5 +1,6 @@
 using UnityEngine;
 using GridSystem.Core;
+using PlasticGui;
 
 namespace GridSystem.Items
 {
@@ -11,16 +12,17 @@ namespace GridSystem.Items
         //Eventually remove the need to set the item beforehand.
         [SerializeField]
         private ItemScriptableObject item;
-
+        [SerializeField]
+        private float itemSize = 0.5f;
         public ItemScriptableObject Item => item;
         //[TODO] Serialized Field of the 3D model of the item
 
         private void OnEnable()
         {
-            generateItem();
+            GenerateItem();
         }
 
-        private void generateItem()
+        private void GenerateItem()
         {
             if (item == null)
             {
@@ -29,6 +31,16 @@ namespace GridSystem.Items
             }
             //[TODO] Load the 3D model of the Item
 
+        }
+
+        private void OnDrawGizmos()
+        {
+            foreach (var cell in Item.ShapeOffsets) {
+                var cellVector = new Vector3(itemSize, itemSize, itemSize);
+                Gizmos.color = Color.blue;
+                Vector3 floatCell = cell;
+                Gizmos.DrawWireCube(gameObject.transform.position + (floatCell * itemSize), cellVector);
+            }
         }
     }
 }

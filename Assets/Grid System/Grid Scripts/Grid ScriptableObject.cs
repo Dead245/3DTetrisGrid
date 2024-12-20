@@ -12,9 +12,9 @@ namespace GridSystem.Core
 
         public bool IsWithinBounds(Vector3Int position)
         {
-            return position.x >= 0 && position.x < gridSize.x &&
-                   position.y >= 0 && position.y < gridSize.y &&
-                   position.z >= 0 && position.z < gridSize.z;
+            return position.x >= 0 && position.x < (gridSize.x / 2) - 1 &&
+                   position.y >= 0 && position.y < (gridSize.y / 2) - 1 &&
+                   position.z >= 0 && position.z < (gridSize.z / 2) - 1;
         }
     }
 }
