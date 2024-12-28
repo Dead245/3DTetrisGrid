@@ -1,6 +1,7 @@
 using UnityEngine;
 using GridSystem.Items;
 using System.Collections.Generic;
+using System;
 
 namespace GridSystem.Core
 {
@@ -12,7 +13,7 @@ namespace GridSystem.Core
         private float cellSize = 1f;
 
         private Dictionary<Vector3Int,GameObject> itemsInGrid = new();
-        private bool[,,] occupiedStatus;
+        private List<Vector3Int> occupiedStatus = new List<Vector3Int>();
 
         private Bounds gridBounds;
         private float maxSearchDistance = 3f;
@@ -24,8 +25,6 @@ namespace GridSystem.Core
                 Debug.LogError("Grid Scriptable Object not assigned!");
                 return;
             }
-
-            occupiedStatus = new bool[gridInfo.GridSize.x, gridInfo.GridSize.y, gridInfo.GridSize.z];
             Vector3 sizeVector = gridInfo.GridSize;
             gridBounds = new Bounds(transform.position, sizeVector * cellSize);
         }
@@ -33,11 +32,11 @@ namespace GridSystem.Core
         public bool AddItem(GameObject item, Vector3Int cellPosition) {
             //Check if every cell of the item can fit.
             if (!CheckItem(item.GetComponent<ItemManager>(), cellPosition)) {
-                Debug.Log("Item Can't fit there.");    
                 return false;
             }
-
-            SetCellOccupied(cellPosition, true);
+            foreach (var cell in item.GetComponent<ItemManager>().Item.ShapeOffsets) {
+                SetCellOccupied(cell + cellPosition, true);
+            }
             item.GetComponent<Rigidbody>().isKinematic = true;
             itemsInGrid.Add(cellPosition,item);
             ItemManager itemManager = item.GetComponent<ItemManager>();
@@ -52,42 +51,48 @@ namespace GridSystem.Core
             itemManager.gridManager = null;
             itemManager.gridCellOrigin = new Vector3Int();
             itemsInGrid.Remove(cellPosition);
-            SetCellOccupied(cellPosition, false);
+            foreach (var cell in itemManager.Item.ShapeOffsets) {
+                SetCellOccupied(cell + cellPosition, false);
+            }
             return true;
         }
 
         private bool CheckItem(ItemManager itemMang, Vector3Int cellPos) {
-            Debug.Log("Checking Item...");
             foreach (var cell in itemMang.Item.ShapeOffsets) {
                 Vector3 floatCell = cell;
                 if (!gridBounds.Contains(itemMang.transform.position + (floatCell * cellSize))) return false;
                 if (IsCellOccupied(cell + cellPos)) return false;
             }
-            Debug.Log("Item can fit.");
             return true;
-        }
-        private bool itemCellInGrid(GameObject item, Vector3Int cell)
-        {
-            Vector3 itemPos = item.transform.position;
-            Vector3 floatCell = cell;
-            return gridBounds.Contains(itemPos + (floatCell * cellSize));
         }
 
         #region Cell Functions
         private bool IsCellOccupied(Vector3Int position) {
             if (gridInfo.IsWithinBounds(position))
             {
-                return occupiedStatus[position.x, position.y, position.z];
+                if (occupiedStatus != null)
+                {
+                    return occupiedStatus.Contains(position);
+                }
             }
             return false;
         }
         private void SetCellOccupied(Vector3Int position, bool isOccupied) {
             if (gridInfo.IsWithinBounds(position))
             {
-                occupiedStatus[position.x, position.y, position.z] = isOccupied;
+                if (isOccupied)
+                {
+                    occupiedStatus.Add(position);
+                }
+                else
+                {
+                    occupiedStatus.Remove(position);
+                }
+
+                return;
             }
         }
-        public Vector3 GetNearestEmptyCell(Vector3 position) {
+        public Vector3 GetNearestEmptyCell(ItemManager itemManager, Vector3 position) {
             position = GetNearestCell(position);
             if (position == invalidPos) {
                 return invalidPos;
@@ -104,7 +109,7 @@ namespace GridSystem.Core
 
                 // Check if cell is valid and not occupied
                 if (gridBounds.Contains(current) && !visitedCells.Contains(cell)) {
-                    if (!IsCellOccupied(cell)) {
+                    if (CheckItem(itemManager,cell)) {
                         return current;
                     }
 

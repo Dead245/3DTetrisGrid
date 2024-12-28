@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace GridSystem.Core
 {
@@ -12,9 +11,16 @@ namespace GridSystem.Core
 
         public bool IsWithinBounds(Vector3Int position)
         {
-            return position.x >= 0 && position.x < (gridSize.x / 2) - 1 &&
-                   position.y >= 0 && position.y < (gridSize.y / 2) - 1 &&
-                   position.z >= 0 && position.z < (gridSize.z / 2) - 1;
+            int minX = -gridSize.x / 2;
+            int maxX = gridSize.x / 2;
+            int minY = -gridSize.y / 2;
+            int maxY = gridSize.y / 2;
+            int minZ = -gridSize.z / 2;
+            int maxZ = gridSize.z / 2;
+
+            return position.x >= minX && position.x <= maxX &&
+                   position.y >= minY && position.y <= maxY &&
+                   position.z >= minZ && position.z <= maxZ;
         }
     }
 }

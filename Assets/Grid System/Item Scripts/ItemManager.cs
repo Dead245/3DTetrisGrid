@@ -1,6 +1,5 @@
 using UnityEngine;
 using GridSystem.Core;
-using PlasticGui;
 
 namespace GridSystem.Items
 {
@@ -14,6 +13,8 @@ namespace GridSystem.Items
         private ItemScriptableObject item;
         [SerializeField]
         private float itemSize = 0.5f;
+
+        public Vector3 rotation;
         public ItemScriptableObject Item => item;
         //[TODO] Serialized Field of the 3D model of the item
 

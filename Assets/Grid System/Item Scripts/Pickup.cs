@@ -23,19 +23,20 @@ namespace GridSystem.PickupLogic
         private GridManager interactingGridManager = null;
         private Vector3Int snappedCell;
         private Vector3 invalidPoint = new Vector3(1000000, 1000000, 1000000);
+        public GameObject GrabbedItem => grabbedItem;
 
         private void Start()
         {
             grids = FindObjectsByType<GridManager>(FindObjectsSortMode.None);
         }
 
-        //Swap to 'OnAttack' for left click interaction, 'OnInteract' for 'E' key interaction.
-        void OnInteract()
+        //If true, it means it is interacting/holding an item (hopefully)
+        public bool Interact()
         {
             if (itemGrabbed)
             {
                 DropItem();
-                return;
+                return false;
             }
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitInfo;
@@ -44,7 +45,9 @@ namespace GridSystem.PickupLogic
             {
                 // Do stuff to whatever we hit here
                 PickupItem(hitInfo.collider.gameObject);
+                return true;
             }
+            return false;
         }
         private void PickupItem(GameObject itemObject)
         {
@@ -87,7 +90,7 @@ namespace GridSystem.PickupLogic
             interactingGridManager = null;
             foreach (var grid in grids)
             {   //Swapping snapPoint to just be closestPoint makes it not update closestPoint correctly???
-                Vector3 snapPoint = grid.GetNearestEmptyCell(position);
+                Vector3 snapPoint = grid.GetNearestEmptyCell(grabbedItem.GetComponent<ItemManager>(), position);
                 if (snapPoint == invalidPoint) continue; // Ignore "invalid" return
                 closestPoint = snapPoint;
                 interactingGridManager = grid;

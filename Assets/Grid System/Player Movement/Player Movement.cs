@@ -50,11 +50,6 @@ public class PlayerMovement : MonoBehaviour
         movementInput = position.Get<Vector2>();
     }
 
-    void OnAttack()
-    {
-        Debug.Log("Attack (Left Clicked)");
-    }
-
     void OnJump() {
         Debug.Log("Jump");
     }
