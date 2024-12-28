@@ -1,5 +1,6 @@
 using UnityEngine;
 using GridSystem.Core;
+using System.Collections.Generic;
 
 namespace GridSystem.Items
 {
@@ -14,13 +15,16 @@ namespace GridSystem.Items
         [SerializeField]
         private float itemSize = 0.5f;
 
-        public Vector3 rotation;
+        public Quaternion rotation;
+        public List<Vector3Int> rotatedOffsets = new List<Vector3Int>();
+
         public ItemScriptableObject Item => item;
         //[TODO] Serialized Field of the 3D model of the item
 
         private void OnEnable()
         {
             GenerateItem();
+            rotatedOffsets = item.ShapeOffsets;
         }
 
         private void GenerateItem()

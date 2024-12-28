@@ -1,4 +1,5 @@
 using GridSystem.Core;
+using GridSystem.Interactions;
 using GridSystem.Items;
 using UnityEngine;
 
@@ -15,7 +16,7 @@ namespace GridSystem.PickupLogic
         [SerializeField]
         private float itemLerpSpeed = 1f;
 
-        private bool itemGrabbed;
+        private bool isItemGrabbed;
         private GameObject grabbedItem;
         private Rigidbody itemRB;
 
@@ -33,7 +34,7 @@ namespace GridSystem.PickupLogic
         //If true, it means it is interacting/holding an item (hopefully)
         public bool Interact()
         {
-            if (itemGrabbed)
+            if (isItemGrabbed)
             {
                 DropItem();
                 return false;
@@ -59,7 +60,7 @@ namespace GridSystem.PickupLogic
                     interactingGridManager.RemoveItem(itemCell);
                     itemRB.isKinematic = false;
                 }
-                itemGrabbed = true;
+                isItemGrabbed = true;
                 grabbedItem = itemObject;
                 return;
             }
@@ -75,52 +76,56 @@ namespace GridSystem.PickupLogic
                 if (interactingGridManager.AddItem(grabbedItem, snappedCell)) {
                     Debug.Log("Add Item worked");
                     grabbedItem = null;
-                    itemGrabbed = false;
+                    isItemGrabbed = false;
                 }
                 //!!!Still need to handle items bigger than 1 cell and rotation!!!
                 return;
             }
             grabbedItem = null;
-            itemGrabbed = false;
+            isItemGrabbed = false;
         }
 
         private Vector3 FindNearestSnapPoint(Vector3 position) {
             Vector3 closestPoint = invalidPoint;
 
             interactingGridManager = null;
+            grabbedItem.GetComponent<ItemManager>().gridManager = null;
             foreach (var grid in grids)
             {   //Swapping snapPoint to just be closestPoint makes it not update closestPoint correctly???
                 Vector3 snapPoint = grid.GetNearestEmptyCell(grabbedItem.GetComponent<ItemManager>(), position);
                 if (snapPoint == invalidPoint) continue; // Ignore "invalid" return
                 closestPoint = snapPoint;
                 interactingGridManager = grid;
+                grabbedItem.GetComponent<ItemManager>().gridManager = grid;
+                return closestPoint;
             }
-            return closestPoint;
+            return invalidPoint;
         }
         
         private void FixedUpdate()
         {
             if (grabbedItem != null)
             {
+                //Item Rotation Handling
+                grabbedItem.transform.rotation = Quaternion.Lerp(grabbedItem.transform.localRotation, grabbedItem.GetComponent<ItemManager>().rotation, itemLerpSpeed * Time.fixedDeltaTime);
+
+                //Check if item is in a grid
                 Vector3 targetVelocity;
                 Vector3 nearestSnapPoint = FindNearestSnapPoint(itemGrabPointTransform.position);
-                if (nearestSnapPoint != invalidPoint) {
+                if (nearestSnapPoint != invalidPoint)
+                {
                     //Snap to grid positions
                     targetVelocity = (nearestSnapPoint - itemRB.position) / Time.fixedDeltaTime;
                     itemRB.linearVelocity = targetVelocity;
                     snappedCell = interactingGridManager.GetCell(nearestSnapPoint);
-                    //Item Rotation Handling
-                    itemRB.angularVelocity = Vector3.zero;
-                    itemRB.rotation = Quaternion.identity; //Grids cannot be rotated due to how they work with Bounds, for now
+                    //Snap Rotation
+                    grabbedItem.GetComponent<Rotate>().snapRotation();
                     return;
                 }
 
                 //Item Movement Handling
                 targetVelocity = (itemGrabPointTransform.position - grabbedItem.transform.position) / Time.fixedDeltaTime;
                 itemRB.linearVelocity = targetVelocity;
-
-                //Item Rotation Handling
-                itemRB.angularVelocity = Vector3.Lerp(itemRB.angularVelocity, Vector3.zero, itemLerpSpeed * Time.fixedDeltaTime);
             }
         }
     }

@@ -8,7 +8,7 @@ namespace GridSystem.Items
     {
         [SerializeField]
         private List<Vector3Int> shapeOffsets = new List<Vector3Int>();
-
+        
         public List<Vector3Int> ShapeOffsets => shapeOffsets;
 
     }

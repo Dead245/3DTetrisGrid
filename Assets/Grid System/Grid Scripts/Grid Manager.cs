@@ -15,7 +15,7 @@ namespace GridSystem.Core
         private Dictionary<Vector3Int,GameObject> itemsInGrid = new();
         private List<Vector3Int> occupiedStatus = new List<Vector3Int>();
 
-        private Bounds gridBounds;
+        public Bounds gridBounds;
         private float maxSearchDistance = 3f;
 
         private Vector3 invalidPos = new Vector3(1000000,1000000,1000000);
@@ -34,13 +34,12 @@ namespace GridSystem.Core
             if (!CheckItem(item.GetComponent<ItemManager>(), cellPosition)) {
                 return false;
             }
-            foreach (var cell in item.GetComponent<ItemManager>().Item.ShapeOffsets) {
+            foreach (var cell in item.GetComponent<ItemManager>().rotatedOffsets) {
                 SetCellOccupied(cell + cellPosition, true);
             }
             item.GetComponent<Rigidbody>().isKinematic = true;
             itemsInGrid.Add(cellPosition,item);
             ItemManager itemManager = item.GetComponent<ItemManager>();
-            itemManager.gridManager = this;
             itemManager.gridCellOrigin = cellPosition;
             return true;
         }
@@ -51,14 +50,14 @@ namespace GridSystem.Core
             itemManager.gridManager = null;
             itemManager.gridCellOrigin = new Vector3Int();
             itemsInGrid.Remove(cellPosition);
-            foreach (var cell in itemManager.Item.ShapeOffsets) {
+            foreach (var cell in itemManager.rotatedOffsets) {
                 SetCellOccupied(cell + cellPosition, false);
             }
             return true;
         }
 
         private bool CheckItem(ItemManager itemMang, Vector3Int cellPos) {
-            foreach (var cell in itemMang.Item.ShapeOffsets) {
+            foreach (var cell in itemMang.rotatedOffsets) {
                 Vector3 floatCell = cell;
                 if (!gridBounds.Contains(itemMang.transform.position + (floatCell * cellSize))) return false;
                 if (IsCellOccupied(cell + cellPos)) return false;
