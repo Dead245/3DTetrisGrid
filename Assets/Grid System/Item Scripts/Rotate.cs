@@ -9,6 +9,7 @@ namespace GridSystem.Interactions
         private ItemManager itemMang;
 
         private int outsideGridRotAmount = 5;
+
         void Start()
         {
             itemMang = gameObject.GetComponent<ItemManager>();
@@ -21,46 +22,51 @@ namespace GridSystem.Interactions
                 if (modified) {
                     //UP
                     if (itemMang.gridManager != null) {
-                        itemMang.rotation.eulerAngles -= new Vector3(90, 0, 0);
+                        itemMang.rotation *= Quaternion.Euler(-90, 0, 0);
                         return;
                     }
-                    itemMang.rotation.eulerAngles -= new Vector3(outsideGridRotAmount, 0, 0);
+                    itemMang.rotation *= Quaternion.Euler(-outsideGridRotAmount, 0, 0);
+                    Debug.Log($"New Rot: {itemMang.rotation}");
                     return;
                 }
                 //LEFT
                 if (itemMang.gridManager != null)
                 {
-                    itemMang.rotation.eulerAngles += new Vector3(0, 90, 0);
+                    itemMang.rotation *= Quaternion.Euler(0, 90, 0);
                     return;
                 }
-                itemMang.rotation.eulerAngles += new Vector3(0, outsideGridRotAmount, 0);
+                itemMang.rotation *= Quaternion.Euler(0, outsideGridRotAmount, 0);
                 return;
             }
             if (modified) {
                 //DOWN
                 if (itemMang.gridManager != null)
                 {
-                    itemMang.rotation.eulerAngles += new Vector3(90, 0, 0);
+                    itemMang.rotation *= Quaternion.Euler(90, 0, 0);
                     return;
                 }
-                itemMang.rotation.eulerAngles += new Vector3(outsideGridRotAmount, 0, 0);
+                itemMang.rotation *= Quaternion.Euler(outsideGridRotAmount, 0, 0);
                 return;
             }
             //RIGHT
             if (itemMang.gridManager != null)
             {
-                itemMang.rotation.eulerAngles -= new Vector3(0, 90, 0);
+                itemMang.rotation *= Quaternion.Euler(0, -90, 0);
                 return;
             }
-            itemMang.rotation.eulerAngles -= new Vector3(0, outsideGridRotAmount, 0);
+            itemMang.rotation *= Quaternion.Euler(0, -outsideGridRotAmount, 0);
         }
 
-        public void snapRotation() {
-            Vector3 snappedRot = new Vector3 (0, 0, 0);
+        public void SnapRotation() {
+            Vector3 snappedRot = new Vector3(0, 0, 0);
             snappedRot.x = Mathf.Round(itemMang.rotation.eulerAngles.x / 90) * 90;
             snappedRot.y = Mathf.Round(itemMang.rotation.eulerAngles.y / 90) * 90;
             snappedRot.z = Mathf.Round(itemMang.rotation.eulerAngles.z / 90) * 90;
             itemMang.rotation.eulerAngles = snappedRot;
+        }
+
+        public void UpdateItemCellRotation() {
+            
         }
     }
 }

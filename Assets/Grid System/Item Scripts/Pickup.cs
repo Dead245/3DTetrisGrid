@@ -78,7 +78,6 @@ namespace GridSystem.PickupLogic
                     grabbedItem = null;
                     isItemGrabbed = false;
                 }
-                //!!!Still need to handle items bigger than 1 cell and rotation!!!
                 return;
             }
             grabbedItem = null;
@@ -107,8 +106,10 @@ namespace GridSystem.PickupLogic
             if (grabbedItem != null)
             {
                 //Item Rotation Handling
-                grabbedItem.transform.rotation = Quaternion.Lerp(grabbedItem.transform.localRotation, grabbedItem.GetComponent<ItemManager>().rotation, itemLerpSpeed * Time.fixedDeltaTime);
-
+                    grabbedItem.transform.rotation = Quaternion.Lerp(
+                            grabbedItem.transform.rotation,
+                            grabbedItem.GetComponent<ItemManager>().rotation,
+                            itemLerpSpeed * Time.deltaTime );
                 //Check if item is in a grid
                 Vector3 targetVelocity;
                 Vector3 nearestSnapPoint = FindNearestSnapPoint(itemGrabPointTransform.position);
@@ -119,7 +120,7 @@ namespace GridSystem.PickupLogic
                     itemRB.linearVelocity = targetVelocity;
                     snappedCell = interactingGridManager.GetCell(nearestSnapPoint);
                     //Snap Rotation
-                    grabbedItem.GetComponent<Rotate>().snapRotation();
+                    grabbedItem.GetComponent<Rotate>().SnapRotation();
                     return;
                 }
 

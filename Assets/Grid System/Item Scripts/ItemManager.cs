@@ -25,13 +25,14 @@ namespace GridSystem.Items
         {
             GenerateItem();
             rotatedOffsets = item.ShapeOffsets;
+            rotation = transform.rotation;
         }
 
         private void GenerateItem()
         {
             if (item == null)
             {
-                Debug.LogError($"{this.name}'s ItemManager tried to generate an Item while it was Null!");
+                Debug.LogError($"{name}'s ItemManager tried to generate an Item while it was Null!");
                 return;
             }
             //[TODO] Load the 3D model of the Item
