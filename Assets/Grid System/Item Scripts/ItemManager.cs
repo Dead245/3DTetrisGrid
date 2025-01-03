@@ -1,6 +1,7 @@
 using UnityEngine;
 using GridSystem.Core;
 using System.Collections.Generic;
+using UnityEditor;
 
 namespace GridSystem.Items
 {
@@ -39,9 +40,16 @@ namespace GridSystem.Items
 
         }
 
+
+        private void Update()
+        {
+#if UNITY_EDITOR
+            SceneView.RepaintAll();
+#endif
+        }
         private void OnDrawGizmos()
         {
-            foreach (var cell in Item.ShapeOffsets) {
+            foreach (var cell in rotatedOffsets) {
                 var cellVector = new Vector3(itemSize, itemSize, itemSize);
                 Gizmos.color = Color.blue;
                 Vector3 floatCell = cell;

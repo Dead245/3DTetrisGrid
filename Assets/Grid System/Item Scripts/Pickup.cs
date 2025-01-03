@@ -71,6 +71,7 @@ namespace GridSystem.PickupLogic
         }
         private void DropItem()
         {
+            grabbedItem.GetComponent<ItemManager>().rotation = grabbedItem.transform.rotation;
             if (interactingGridManager != null) {
                 //Add to {interactingGridManager}'s grid
                 if (interactingGridManager.AddItem(grabbedItem, snappedCell)) {
