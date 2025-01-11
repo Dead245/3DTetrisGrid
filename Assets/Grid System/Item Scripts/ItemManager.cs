@@ -24,17 +24,14 @@ namespace GridSystem.Items
         public ItemScriptableObject Item => item;
         //[TODO] Serialized Field of the 3D model of the item
 
-        private void OnEnable()
-        {
+        private void OnEnable() {
             GenerateItem();
             rotatedOffsets = item.ShapeOffsets;
             rotation = transform.rotation;
         }
 
-        private void GenerateItem()
-        {
-            if (item == null)
-            {
+        private void GenerateItem() {
+            if (item == null) {
                 Debug.LogError($"{name}'s ItemManager tried to generate an Item while it was Null!");
                 return;
             }
@@ -43,17 +40,51 @@ namespace GridSystem.Items
         }
 
         public void Interact(GameObject originObject) {
-            originObject.GetComponent<Pickup>().InteractItem(this.transform.gameObject);
+            Pickup pickup = originObject.GetComponent<Pickup>();
+            //Drop Item
+            #region Drop Item
+            if (pickup.isItemGrabbed) {
+                rotation = transform.rotation;
+                if (pickup.interactingGridManager != null) {
+                    //Add to interactingGridManager's grid since it means it is in a grid
+                    Vector3Int snappedCell = pickup.interactingGridManager.GetCell(pickup.FindNearestSnapPoint(pickup.itemGrabPointTransform.position));
+                    if (pickup.interactingGridManager.AddItem(pickup.grabbedItem, snappedCell)) {
+                        pickup.grabbedItem = null;
+                        pickup.isItemGrabbed = false;
+                    }
+                    return;
+                }
+                pickup.grabbedItem = null;
+                pickup.isItemGrabbed = false;
+                return;
+            }
+            #endregion
+            //Pickup Item
+            #region Pickup Item
+            Rigidbody itemRB;
+            if (this.TryGetComponent<Rigidbody>(out itemRB)) {
+                pickup.itemRB = itemRB;
+                if (itemRB.isKinematic) {
+                    //Means it is in a grid
+                    Vector3Int itemCell = gridCellOrigin;
+                    pickup.interactingGridManager = gridManager;
+                    pickup.interactingGridManager.RemoveItem(itemCell);
+                    itemRB.isKinematic = false;
+                }
+                pickup.isItemGrabbed = true;
+                pickup.grabbedItem = this.gameObject;
+                return;
+            }
+            #endregion
         }
 
-        private void Update()
-        {
+        //Below is for displaying the item shapes via wire cubes (TEMP).
+        private void Update() {
 #if UNITY_EDITOR
             SceneView.RepaintAll();
 #endif
         }
-        private void OnDrawGizmos()
-        {
+        private void OnDrawGizmos() {
             foreach (var cell in rotatedOffsets) {
                 var cellVector = new Vector3(itemSize, itemSize, itemSize);
                 Gizmos.color = Color.blue;

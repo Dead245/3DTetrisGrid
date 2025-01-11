@@ -8,16 +8,16 @@ namespace GridSystem.PickupLogic
     public class Pickup : MonoBehaviour
     {
         [SerializeField]
-        Transform itemGrabPointTransform;
+        public Transform itemGrabPointTransform;
         [SerializeField]
         private float itemLerpSpeed = 1f;
 
         public bool isItemGrabbed;
-        private GameObject grabbedItem;
-        private Rigidbody itemRB;
+        public GameObject grabbedItem;
+        public Rigidbody itemRB;
 
         private GridManager[] grids;
-        private GridManager interactingGridManager = null;
+        public GridManager interactingGridManager = null;
         private Vector3Int snappedCell;
         private Vector3 invalidPoint = new Vector3(1000000, 1000000, 1000000);
         public GameObject GrabbedItem => grabbedItem;
@@ -27,52 +27,8 @@ namespace GridSystem.PickupLogic
             grids = FindObjectsByType<GridManager>(FindObjectsSortMode.None);
         }
 
-        public bool InteractItem(GameObject gameObject)
-        {
-            if (isItemGrabbed)
-            {
-                DropItem();
-                return false;
-            }
-                PickupItem(gameObject);
-                return true;
-        }
-        private void PickupItem(GameObject itemObject)
-        {
-            if (itemObject.TryGetComponent<Rigidbody>(out itemRB))
-            {
-                if (itemRB.isKinematic) { //Means it is in a grid
-                    Vector3Int itemCell = itemObject.GetComponent<ItemManager>().gridCellOrigin;
-                    interactingGridManager = itemObject.GetComponent<ItemManager>().gridManager;
-                    interactingGridManager.RemoveItem(itemCell);
-                    itemRB.isKinematic = false;
-                }
-                isItemGrabbed = true;
-                grabbedItem = itemObject;
-                return;
-            }
-            else
-            {
-                Debug.LogWarning($"{itemObject.name} doesn't have a Rigidbody. Pickup Failed.");
-            }
-        }
-        private void DropItem()
-        {
-            grabbedItem.GetComponent<ItemManager>().rotation = grabbedItem.transform.rotation;
-            if (interactingGridManager != null) {
-                //Add to {interactingGridManager}'s grid
-                if (interactingGridManager.AddItem(grabbedItem, snappedCell)) {
-                    Debug.Log("Add Item worked");
-                    grabbedItem = null;
-                    isItemGrabbed = false;
-                }
-                return;
-            }
-            grabbedItem = null;
-            isItemGrabbed = false;
-        }
-
-        private Vector3 FindNearestSnapPoint(Vector3 position) {
+        //When trying to place an item in a grid
+        public Vector3 FindNearestSnapPoint(Vector3 position) {
             Vector3 closestPoint = invalidPoint;
 
             interactingGridManager = null;
@@ -91,6 +47,7 @@ namespace GridSystem.PickupLogic
         
         private void FixedUpdate()
         {
+            //For moving an item around once grabbed
             if (grabbedItem != null)
             {
                 //Item Rotation Handling
