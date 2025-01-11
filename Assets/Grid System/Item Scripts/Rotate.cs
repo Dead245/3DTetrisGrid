@@ -71,6 +71,7 @@ namespace GridSystem.Interactions
             itemMang.rotation.eulerAngles = snappedRot;
         }
 
+        //Needs updating/fixing
         private Vector3 GetSnappedVector() {
             Vector3 snappedRot = new Vector3(0, 0, 0);
             snappedRot.x = Mathf.Round(itemMang.rotation.eulerAngles.x / 90) * 90;

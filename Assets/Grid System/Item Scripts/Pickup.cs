@@ -7,6 +7,7 @@ namespace GridSystem.PickupLogic
 {
     public class Pickup : MonoBehaviour
     {
+        #region Variables
         [SerializeField]
         public Transform itemGrabPointTransform;
         [SerializeField]
@@ -21,6 +22,7 @@ namespace GridSystem.PickupLogic
         private Vector3Int snappedCell;
         private Vector3 invalidPoint = new Vector3(1000000, 1000000, 1000000);
         public GameObject GrabbedItem => grabbedItem;
+        #endregion
 
         private void Start()
         {

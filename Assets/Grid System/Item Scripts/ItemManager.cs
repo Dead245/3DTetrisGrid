@@ -79,6 +79,7 @@ namespace GridSystem.Items
         }
 
         //Below is for displaying the item shapes via wire cubes (TEMP).
+        #region Wireframe Display
         private void Update() {
 #if UNITY_EDITOR
             SceneView.RepaintAll();
@@ -92,5 +93,6 @@ namespace GridSystem.Items
                 Gizmos.DrawWireCube(gameObject.transform.position + (floatCell * itemSize), cellVector);
             }
         }
+        #endregion
     }
 }
