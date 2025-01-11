@@ -2,11 +2,13 @@ using UnityEngine;
 using GridSystem.Core;
 using System.Collections.Generic;
 using UnityEditor;
+using GridSystem.Interactions;
+using GridSystem.PickupLogic;
 
 namespace GridSystem.Items
 {
     [SelectionBase]
-    public class ItemManager : MonoBehaviour
+    public class ItemManager : MonoBehaviour, IInteractable
     {
         public GridManager gridManager; //For when it supposed to be in a grid.
         public Vector3Int gridCellOrigin;
@@ -40,6 +42,9 @@ namespace GridSystem.Items
 
         }
 
+        public void Interact(GameObject originObject) {
+            originObject.GetComponent<Pickup>().InteractItem(this.transform.gameObject);
+        }
 
         private void Update()
         {

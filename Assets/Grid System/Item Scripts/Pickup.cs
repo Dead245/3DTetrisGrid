@@ -10,13 +10,9 @@ namespace GridSystem.PickupLogic
         [SerializeField]
         Transform itemGrabPointTransform;
         [SerializeField]
-        private float interactDistance = 3f;
-        [SerializeField]
-        private LayerMask hitLayer;
-        [SerializeField]
         private float itemLerpSpeed = 1f;
 
-        private bool isItemGrabbed;
+        public bool isItemGrabbed;
         private GameObject grabbedItem;
         private Rigidbody itemRB;
 
@@ -31,24 +27,15 @@ namespace GridSystem.PickupLogic
             grids = FindObjectsByType<GridManager>(FindObjectsSortMode.None);
         }
 
-        //If true, it means it is interacting/holding an item (hopefully)
-        public bool Interact()
+        public bool InteractItem(GameObject gameObject)
         {
             if (isItemGrabbed)
             {
                 DropItem();
                 return false;
             }
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hitInfo;
-            // Check if the ray hits something within interactDistance
-            if (Physics.Raycast(ray, out hitInfo, interactDistance, hitLayer))
-            {
-                // Do stuff to whatever we hit here
-                PickupItem(hitInfo.collider.gameObject);
+                PickupItem(gameObject);
                 return true;
-            }
-            return false;
         }
         private void PickupItem(GameObject itemObject)
         {
