@@ -47,7 +47,7 @@ namespace GridSystem.Items
                 rotation = transform.rotation;
                 if (pickup.interactingGridManager != null) {
                     //Add to interactingGridManager's grid since it means it is in a grid
-                    Vector3Int snappedCell = pickup.interactingGridManager.GetCell(pickup.FindNearestSnapPoint(pickup.itemGrabPointTransform.position));
+                    Vector3Int snappedCell = gridManager.GetCell((Vector3)gridManager.GetNearestEmptyCell(this,pickup.itemGrabPointTransform.position));
                     if (pickup.interactingGridManager.AddItem(pickup.grabbedItem, snappedCell)) {
                         pickup.grabbedItem = null;
                         pickup.isItemGrabbed = false;
@@ -64,15 +64,16 @@ namespace GridSystem.Items
             Rigidbody itemRB;
             if (this.TryGetComponent<Rigidbody>(out itemRB)) {
                 pickup.itemRB = itemRB;
+                rotation = transform.rotation;
                 if (itemRB.isKinematic) {
                     //Means it is in a grid
                     Vector3Int itemCell = gridCellOrigin;
                     pickup.interactingGridManager = gridManager;
-                    pickup.interactingGridManager.RemoveItem(itemCell);
+                    gridManager.RemoveItem(itemCell);
                     itemRB.isKinematic = false;
                 }
                 pickup.isItemGrabbed = true;
-                pickup.grabbedItem = this.gameObject;
+                pickup.grabbedItem = gameObject;
                 return;
             }
             #endregion

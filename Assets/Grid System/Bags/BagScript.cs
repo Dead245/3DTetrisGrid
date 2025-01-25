@@ -1,20 +1,26 @@
 using GridSystem.Interactions;
 using UnityEngine;
+using GridSystem.Core;
 
 namespace GridSystem.Bag
 {
     public class BagScript : MonoBehaviour, IInteractable
     {
         private bool isOpen = false;
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start()
-        {
-
+        GridManager BagGrid;
+        void OnEnable() {
+            BagGrid = GetComponentInChildren<GridManager>();
+            BagGrid.SetGridActive(isOpen);
         }
-
         public void Interact(GameObject originObject) {
             isOpen = !isOpen;
-            Debug.Log($"Bag is open? {isOpen}");
+            BagGrid.SetGridActive(isOpen);
+            if (isOpen) {
+                GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+            }
+            else {
+                GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+            }
         }
     }
 }

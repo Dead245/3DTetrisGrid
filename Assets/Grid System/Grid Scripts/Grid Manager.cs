@@ -1,10 +1,12 @@
 using UnityEngine;
 using GridSystem.Items;
+using GridSystem.PickupLogic;
 using System.Collections.Generic;
-using System;
+
 
 namespace GridSystem.Core
 {
+    [RequireComponent(typeof(BoxCollider))]
     public class GridManager : MonoBehaviour
     {
         [SerializeField]
@@ -13,20 +15,68 @@ namespace GridSystem.Core
         private float cellSize = 1f;
 
         private Dictionary<Vector3Int,GameObject> itemsInGrid = new();
-        private List<Vector3Int> occupiedStatus = new List<Vector3Int>();
+        private List<Vector3Int> occupiedStatus = new();
 
-        public Bounds gridBounds;
+        public BoxCollider boxCollider;
         private float maxSearchDistance = 3f;
 
-        private Vector3 invalidPos = new Vector3(1000000,1000000,1000000);
+        private Collider intersectingItem;
+        public Vector3? closestSnapPoint = null;
+
+        public void OnEnable()
+        {
+            Vector3 sizeVector = gridInfo.GridSize;
+            boxCollider = GetComponent<BoxCollider>();
+            boxCollider.size = sizeVector * cellSize;
+            boxCollider.isTrigger = true;
+        }
         void Start() {
             if (gridInfo == null)
             {
-                Debug.LogError("Grid Scriptable Object not assigned!");
+                Debug.LogWarning("Grid Scriptable Object not assigned!");
                 return;
             }
-            Vector3 sizeVector = gridInfo.GridSize;
-            gridBounds = new Bounds(transform.position, sizeVector * cellSize);
+        }
+
+        private void OnTriggerStay(Collider other)
+        {
+            //Ignore items that are inside the grid already
+            foreach (var item in itemsInGrid.Values) {
+                if (other.gameObject.Equals(item)) return;
+            }
+            ItemManager itemMang;
+            Pickup pickupScript;
+            if (other.TryGetComponent<ItemManager>(out itemMang)) {
+                pickupScript = Camera.main.GetComponentInParent<Pickup>();
+                if (pickupScript.GrabbedItem != null)
+                {
+                    if (pickupScript.GrabbedItem.Equals(other.gameObject))
+                    {
+                        intersectingItem = other;
+                        closestSnapPoint = GetNearestEmptyCell(itemMang,pickupScript.itemGrabPointTransform.position);
+                        pickupScript.interactingGridManager = this;
+                        itemMang.gridManager = this;
+                    }
+                }
+            }
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (other.Equals(intersectingItem)) {
+                Camera.main.GetComponentInParent<Pickup>().interactingGridManager = null;
+                intersectingItem = null;
+                //Parenting the item makes the trigger volume not recognize it aka "exit" it, so we do this:
+                foreach (var item in itemsInGrid.Values) {
+                    if (other.gameObject.Equals(item)) return;
+                }
+                other.transform.SetParent(null);
+                other.GetComponent<ItemManager>().gridManager = null;
+            }
+        }
+
+        public void SetGridActive(bool activeState) {
+            gameObject.SetActive(activeState);
         }
 
         public bool AddItem(GameObject item, Vector3Int cellPosition) {
@@ -37,6 +87,7 @@ namespace GridSystem.Core
             foreach (var cell in item.GetComponent<ItemManager>().rotatedOffsets) {
                 SetCellOccupied(cell + cellPosition, true);
             }
+            item.transform.SetParent(transform);
             item.GetComponent<Rigidbody>().isKinematic = true;
             itemsInGrid.Add(cellPosition,item);
             ItemManager itemManager = item.GetComponent<ItemManager>();
@@ -47,22 +98,37 @@ namespace GridSystem.Core
         public bool RemoveItem(Vector3Int cellPosition) {
             Debug.Log($"Removing item at {cellPosition}");
             ItemManager itemManager = itemsInGrid[cellPosition].GetComponent<ItemManager>();
-            itemManager.gridManager = null;
             itemManager.gridCellOrigin = new Vector3Int();
             itemsInGrid.Remove(cellPosition);
             foreach (var cell in itemManager.rotatedOffsets) {
                 SetCellOccupied(cell + cellPosition, false);
             }
+            Debug.Log("Null Grid Manager in Item Manager");
+            itemManager.gridManager = null;
             return true;
         }
 
         private bool CheckItem(ItemManager itemMang, Vector3Int cellPos) {
             foreach (var cell in itemMang.rotatedOffsets) {
                 Vector3 floatCell = cell;
-                if (!gridBounds.Contains(itemMang.transform.position + (floatCell * cellSize))) return false;
+                if (!GridContains(itemMang.transform.position + (floatCell * cellSize))) return false;
                 if (IsCellOccupied(cell + cellPos)) return false;
             }
             return true;
+        }
+
+        private bool GridContains(Vector3 itemPos) {
+            // Transform the point into the local space of the BoxCollider
+            Vector3 localPoint = boxCollider.transform.InverseTransformPoint(itemPos);
+
+            // Get the local bounds of the BoxCollider
+            Vector3 center = boxCollider.center;
+            Vector3 size = boxCollider.size / 2f;
+
+            // Check if the point is inside the local bounds
+            return (localPoint.x >= center.x - size.x && localPoint.x <= center.x + size.x &&
+                    localPoint.y >= center.y - size.y && localPoint.y <= center.y + size.y &&
+                    localPoint.z >= center.z - size.z && localPoint.z <= center.z + size.z);
         }
 
         #region Cell Functions
@@ -91,11 +157,12 @@ namespace GridSystem.Core
                 return;
             }
         }
-        public Vector3 GetNearestEmptyCell(ItemManager itemManager, Vector3 position) {
-            position = GetNearestCell(position);
-            if (position == invalidPos) {
-                return invalidPos;
+        public Vector3? GetNearestEmptyCell(ItemManager itemManager, Vector3 position) {
+            Vector3? pos = GetNearestCell(position);
+            if (pos == null) {
+                return null;
             }
+            position = (Vector3)pos;
 
             Queue<Vector3> toVisit = new Queue<Vector3>();
             HashSet<Vector3Int> visitedCells = new HashSet<Vector3Int>();
@@ -107,7 +174,7 @@ namespace GridSystem.Core
                 Vector3Int cell = GetCell(current);
 
                 // Check if cell is valid and not occupied
-                if (gridBounds.Contains(current) && !visitedCells.Contains(cell)) {
+                if (GridContains(current) && !visitedCells.Contains(cell)) {
                     if (CheckItem(itemManager,cell)) {
                         return current;
                     }
@@ -130,13 +197,13 @@ namespace GridSystem.Core
                     }
                 }
             }
-            return invalidPos; // Fallback if no empty cell found
+            return null; // Fallback if no empty cell found
         }
-        public Vector3 GetNearestCell(Vector3 position) {
-            if (!gridBounds.Contains(position))
+        public Vector3? GetNearestCell(Vector3 position) {
+            if (!GridContains(position))
             {
-                //Position is outside the grid bounds, return an "invalid" position
-                return invalidPos; //gotta be a better way right?
+                //Position is outside the grid bounds, return an invalid position
+                return null;
             }
             Vector3 localPos = position - transform.position;
             float invCellSize = 1f / cellSize;
@@ -152,12 +219,5 @@ namespace GridSystem.Core
             return cellLocation;
         }
         #endregion
-
-        private void OnDrawGizmos() {
-            var cellVector = new Vector3(cellSize,cellSize,cellSize);
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireCube(gridBounds.center, gridBounds.size);
-            Gizmos.DrawWireCube(gridBounds.center, cellVector);
-        }
     }
 }
