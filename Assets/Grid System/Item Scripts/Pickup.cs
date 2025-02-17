@@ -17,16 +17,10 @@ namespace GridSystem.PickupLogic
         public GameObject grabbedItem;
         public Rigidbody itemRB;
 
-        private GridManager[] grids;
         public GridManager interactingGridManager = null;
         private Vector3Int snappedCell;
         public GameObject GrabbedItem => grabbedItem;
         #endregion
-
-        private void Start()
-        {
-            grids = FindObjectsByType<GridManager>(FindObjectsSortMode.None);
-        }
         
         private void FixedUpdate()
         {

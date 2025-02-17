@@ -8,18 +8,20 @@ namespace GridSystem.Bag
     {
         private bool isOpen = false;
         GridManager BagGrid;
+        Rigidbody rb;
         void OnEnable() {
             BagGrid = GetComponentInChildren<GridManager>();
             BagGrid.SetGridActive(isOpen);
+            rb = GetComponent<Rigidbody>();
         }
         public void Interact(GameObject originObject) {
             isOpen = !isOpen;
             BagGrid.SetGridActive(isOpen);
             if (isOpen) {
-                GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+                rb.constraints = RigidbodyConstraints.FreezeAll;
             }
             else {
-                GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                rb.constraints = RigidbodyConstraints.None;
             }
         }
     }

@@ -10,8 +10,13 @@ namespace GridSystem.Interactions
         [SerializeField]
         private float interactDistance = 3f;
         private bool modifiedRot = false;
+
+        private Pickup pickup;
+        private void OnEnable() {
+            pickup = GetComponent<Pickup>();
+        }
+
         void OnRotate(InputValue rotDir) {
-            Pickup pickup = GetComponent<Pickup>();
             if (pickup.isItemGrabbed)
             {
                 pickup.GrabbedItem.GetComponent<Rotate>().RotateItem((int)rotDir.Get<float>(), modifiedRot);

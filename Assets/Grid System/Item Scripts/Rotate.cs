@@ -1,7 +1,5 @@
 using GridSystem.Items;
 using UnityEngine;
-using System.Collections.Generic;
-using PlasticGui;
 
 namespace GridSystem.Interactions
 {
@@ -11,8 +9,7 @@ namespace GridSystem.Interactions
         [SerializeField]
         private int outsideGridRotAmount = 5;
 
-        void Start()
-        {
+        void OnEnable() {
             itemMang = gameObject.GetComponent<ItemManager>();
         }
 
