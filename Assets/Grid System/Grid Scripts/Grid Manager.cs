@@ -96,14 +96,12 @@ namespace GridSystem.Core
         }
 
         public bool RemoveItem(Vector3Int cellPosition) {
-            Debug.Log($"Removing item at {cellPosition}");
             ItemManager itemManager = itemsInGrid[cellPosition].GetComponent<ItemManager>();
             itemManager.gridCellOrigin = new Vector3Int();
             itemsInGrid.Remove(cellPosition);
             foreach (var cell in itemManager.rotatedOffsets) {
                 SetCellOccupied(cell + cellPosition, false);
             }
-            Debug.Log("Null Grid Manager in Item Manager");
             itemManager.gridManager = null;
             return true;
         }
