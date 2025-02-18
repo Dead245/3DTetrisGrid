@@ -15,8 +15,7 @@ namespace GridSystem.Items
         //Eventually remove the need to set the item beforehand.
         [SerializeField]
         private ItemScriptableObject item;
-        [SerializeField]
-        private float itemSize = 0.5f;
+        private float itemSize;
 
         public Quaternion rotation;
         public List<Vector3Int> rotatedOffsets = new List<Vector3Int>();
@@ -28,6 +27,7 @@ namespace GridSystem.Items
             GenerateItem();
             rotatedOffsets = item.ShapeOffsets;
             rotation = transform.rotation;
+            itemSize = new MasterGridScript().CellSize;
         }
 
         private void GenerateItem() {

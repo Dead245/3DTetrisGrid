@@ -10,6 +10,7 @@ namespace GridSystem.Interactions
         private int outsideGridRotAmount = 5;
 
         void OnEnable() {
+            Debug.Log("--ROTATE LOGIC NOT WORKING CORRECTLY--");
             itemMang = gameObject.GetComponent<ItemManager>();
         }
 

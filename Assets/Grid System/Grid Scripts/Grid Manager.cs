@@ -11,8 +11,8 @@ namespace GridSystem.Core
     {
         [SerializeField]
         private GridScriptableObject gridInfo;
-        [SerializeField]
-        private float cellSize = 1f;
+
+        private float cellSize;
 
         private Dictionary<Vector3Int,GameObject> itemsInGrid = new();
         private List<Vector3Int> occupiedStatus = new();
@@ -25,6 +25,7 @@ namespace GridSystem.Core
 
         public void OnEnable()
         {
+            cellSize = new MasterGridScript().CellSize;
             Vector3 sizeVector = gridInfo.GridSize;
             boxCollider = GetComponent<BoxCollider>();
             boxCollider.size = sizeVector * cellSize;
