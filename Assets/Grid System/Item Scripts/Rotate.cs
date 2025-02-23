@@ -9,105 +9,104 @@ namespace GridSystem.Interactions
         [SerializeField]
         private int outsideGridRotAmount = 5;
 
+        private Vector3Int previousCellRotation;
+
         void OnEnable() {
-            Debug.Log("--ROTATE LOGIC NOT WORKING CORRECTLY--");
             itemMang = gameObject.GetComponent<ItemManager>();
+
+            Vector3 rot = itemMang.rotation.eulerAngles;
+            int xRot = Mathf.RoundToInt(rot.x / 90) % 4;
+            int yRot = Mathf.RoundToInt(rot.y / 90) % 4;
+            int zRot = Mathf.RoundToInt(rot.z / 90) % 4;
+            previousCellRotation = new Vector3Int(xRot, yRot, zRot);
         }
 
         //Unmodified Rotation - Left/Right | Modified Rotation - Up/Down
         public void RotateItem(int direction, bool modified) {
-            Vector3 originalSnapVector = GetSnappedVector();
-            //Wish there was a 2D switch statement
-            if (direction == 1) {
+            if (itemMang.gridManager != null) {
+                // Up/Down In Grid
                 if (modified) {
-                    //UP
-                    if (itemMang.gridManager != null) {
-                        itemMang.rotation *= Quaternion.Euler(-90, 0, 0);
-                        if (!originalSnapVector.Equals(GetSnappedVector())) UpdateItemCellRotation(1);
-                        return;
-                    }
-                    itemMang.rotation *= Quaternion.Euler(-outsideGridRotAmount, 0, 0);
-                    if (!originalSnapVector.Equals(GetSnappedVector())) UpdateItemCellRotation(1);
+                    itemMang.rotation = Quaternion.AngleAxis(direction * 90f, Camera.main.transform.right) * itemMang.rotation;
+                    UpdateOffsets(1, direction);
+                    SnapRotation();
                     return;
                 }
-                //LEFT
-                if (itemMang.gridManager != null)
-                {
-                    itemMang.rotation *= Quaternion.Euler(0, 90, 0);
-                    if (!originalSnapVector.Equals(GetSnappedVector())) UpdateItemCellRotation(3);
-                    return;
-                }
-                itemMang.rotation *= Quaternion.Euler(0, outsideGridRotAmount, 0);
-                if (!originalSnapVector.Equals(GetSnappedVector())) UpdateItemCellRotation(3);
+                // Left/Right In Grid
+                itemMang.rotation = Quaternion.AngleAxis(direction * 90f,Camera.main.transform.up) * itemMang.rotation;
+                UpdateOffsets(2, direction);
                 return;
             }
+            // Up/Down Out of Grid
             if (modified) {
-                //DOWN
-                if (itemMang.gridManager != null)
-                {
-                    itemMang.rotation *= Quaternion.Euler(90, 0, 0);
-                    if (!originalSnapVector.Equals(GetSnappedVector())) UpdateItemCellRotation(2);
-                    return;
-                }
-                itemMang.rotation *= Quaternion.Euler(outsideGridRotAmount, 0, 0);
-                if (!originalSnapVector.Equals(GetSnappedVector())) UpdateItemCellRotation(2);
+                itemMang.rotation = Quaternion.AngleAxis(direction * outsideGridRotAmount, Camera.main.transform.right) * itemMang.rotation;
                 return;
             }
-            //RIGHT
-            if (itemMang.gridManager != null)
-            {
-                itemMang.rotation *= Quaternion.Euler(0, -90, 0);
-                if (!originalSnapVector.Equals(GetSnappedVector())) UpdateItemCellRotation(4);
-                return;
-            }
-            itemMang.rotation *= Quaternion.Euler(0, -outsideGridRotAmount, 0);
-            if (!originalSnapVector.Equals(GetSnappedVector())) UpdateItemCellRotation(4);
+            // Left/Right Out of Grid
+            itemMang.rotation = Quaternion.AngleAxis(direction * outsideGridRotAmount,Camera.main.transform.up) * itemMang.rotation;
         }
-
         public void SnapRotation() {
-            Vector3 snappedRot = GetSnappedVector();
-            itemMang.rotation.eulerAngles = snappedRot;
+            if (itemMang.gridManager == null) { 
+                Debug.LogError("Rotate/SnapRotation: itemMang.gridManger is null");
+                return;
+            }
+            Quaternion gridRotation = itemMang.gridManager.transform.rotation;
+            Quaternion relativeRot = Quaternion.Inverse(gridRotation) * itemMang.rotation;
+            itemMang.rotation = gridRotation * GetSnappedQuat(relativeRot);
         }
 
-        //Needs updating/fixing
-        private Vector3 GetSnappedVector() {
-            Vector3 snappedRot = new Vector3(0, 0, 0);
-            snappedRot.x = Mathf.Round(itemMang.rotation.eulerAngles.x / 90) * 90;
-            snappedRot.y = Mathf.Round(itemMang.rotation.eulerAngles.y / 90) * 90;
-            snappedRot.z = Mathf.Round(itemMang.rotation.eulerAngles.z / 90) * 90;
-            return snappedRot;
+        private Quaternion GetSnappedQuat(Quaternion originalQuat) {
+            Vector3 snappedRot = originalQuat.eulerAngles;
+            snappedRot.x = Mathf.Round(snappedRot.x / 90) * 90;
+            snappedRot.y = Mathf.Round(snappedRot.y / 90) * 90;
+            snappedRot.z = Mathf.Round(snappedRot.z / 90) * 90;
+            return Quaternion.Euler(snappedRot);
         }
-
-        // 1 - UP | 2 - Down | 3 - Left | 4 - Right
-        private void UpdateItemCellRotation(int direction) {
-            switch (direction)
-            {
-                case 1:
-                    for (int i = 0; i < itemMang.rotatedOffsets.Count; i++)
-                    {
-                        itemMang.rotatedOffsets[i] = new Vector3Int(itemMang.rotatedOffsets[i].x, itemMang.rotatedOffsets[i].z, -itemMang.rotatedOffsets[i].y);
+        private void UpdateOffsets(int rotationDir, int amount) {
+            switch (rotationDir) {
+                case 1:// Up/Down
+                    for (int a = 0; a < Mathf.Abs(amount); a++) {
+                        for (int b = 0; b < itemMang.rotatedOffsets.Count; b++) {
+                            //Need to do extra for Up/Down due to player orientation
+                            float camYRot = Mathf.Round(Camera.main.transform.rotation.eulerAngles.y / 90);
+                            Vector3Int rotation = itemMang.rotatedOffsets[b];
+                            Debug.Log(camYRot);
+                            switch (camYRot)
+                            {
+                                case 1: //Z Axis - ~90 degrees
+                                    if (amount < 0) itemMang.rotatedOffsets[b] = new Vector3Int(-rotation.y, rotation.x, rotation.z);
+                                    if (amount > 0) itemMang.rotatedOffsets[b] = new Vector3Int(rotation.y, -rotation.x, rotation.z);
+                                    break;
+                                case 2: //X Axis - ~180 degrees
+                                    if (amount < 0) itemMang.rotatedOffsets[b] = new Vector3Int(rotation.x, -rotation.z, rotation.y);
+                                    if (amount > 0) itemMang.rotatedOffsets[b] = new Vector3Int(rotation.x, rotation.z, -rotation.y);
+                                    break;
+                                case 3: //Z Axis - ~270 degrees
+                                    if (amount < 0) itemMang.rotatedOffsets[b] = new Vector3Int(rotation.y, -rotation.x, rotation.z);
+                                    if (amount > 0) itemMang.rotatedOffsets[b] = new Vector3Int(-rotation.y, rotation.x, rotation.z);
+                                    break;
+                                case 0: //X Axis - ~0 and 360 degrees
+                                case 4:
+                                    if (amount < 0) itemMang.rotatedOffsets[b] = new Vector3Int(rotation.x, rotation.z, -rotation.y);
+                                    if (amount > 0) itemMang.rotatedOffsets[b] = new Vector3Int(rotation.x, -rotation.z, rotation.y);
+                                    break;
+                                default:
+                                    Debug.LogError("Rotate/Update Offsets: Unsupported camYRot Direction"); //Should never happen
+                                    break;
+                            }
+                        }
                     }
                     break;
-                case 2:
-                    for (int i = 0; i < itemMang.rotatedOffsets.Count; i++)
-                    {
-                        itemMang.rotatedOffsets[i] = new Vector3Int(itemMang.rotatedOffsets[i].x, -itemMang.rotatedOffsets[i].z, itemMang.rotatedOffsets[i].y);
-                    }
-                    break;
-                case 3:
-                    for (int i = 0; i < itemMang.rotatedOffsets.Count; i++)
-                    {
-                        itemMang.rotatedOffsets[i] = new Vector3Int(itemMang.rotatedOffsets[i].z, itemMang.rotatedOffsets[i].y, -itemMang.rotatedOffsets[i].x);
-                    }
-                    break;
-                case 4:
-                    for (int i = 0; i < itemMang.rotatedOffsets.Count; i++)
-                    {
-                        itemMang.rotatedOffsets[i] = new Vector3Int(-itemMang.rotatedOffsets[i].z, itemMang.rotatedOffsets[i].y, itemMang.rotatedOffsets[i].x);
+                case 2:// Left/Right - Y Axis
+                    for (int a = 0; a < Mathf.Abs(amount); a++) {
+                        for (int b = 0; b < itemMang.rotatedOffsets.Count; b++) {
+                            Vector3Int rotation = itemMang.rotatedOffsets[b];
+                            if (amount < 0) itemMang.rotatedOffsets[b] = new Vector3Int(-rotation.z, rotation.y, rotation.x);
+                            if (amount > 0) itemMang.rotatedOffsets[b] = new Vector3Int(rotation.z, rotation.y, -rotation.x);
+                        }
                     }
                     break;
                 default:
-                    Debug.LogError("Incorrect direction entered for UpdateItemCellRotation()");
+                    Debug.LogError("Rotate/Update Offsets: Invalid rotationDir in updateOffsets()");
                     break;
             }
         }

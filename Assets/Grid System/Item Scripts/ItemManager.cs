@@ -18,18 +18,18 @@ namespace GridSystem.Items
         private float itemSize;
 
         public Quaternion rotation;
-        public List<Vector3Int> rotatedOffsets = new List<Vector3Int>();
+        public List<Vector3Int> rotatedOffsets;
 
         public ItemScriptableObject Item => item;
         //[TODO] Serialized Field of the 3D model of the item
 
-        private void OnEnable() {
+        private void OnEnable()
+        {
             GenerateItem();
-            rotatedOffsets = item.ShapeOffsets;
+            rotatedOffsets = new List<Vector3Int>(item.ShapeOffsets);
             rotation = transform.rotation;
             itemSize = new MasterGridScript().CellSize;
         }
-
         private void GenerateItem() {
             if (item == null) {
                 Debug.LogError($"{name}'s ItemManager tried to generate an Item while it was Null!");
