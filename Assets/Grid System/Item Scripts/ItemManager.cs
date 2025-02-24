@@ -26,17 +26,17 @@ namespace GridSystem.Items
         private void OnEnable()
         {
             GenerateItem();
-            rotatedOffsets = new List<Vector3Int>(item.ShapeOffsets);
+            foreach (var cell in Item.ShapeOffsets) {
+                rotatedOffsets.Add(cell);
+            }
             rotation = transform.rotation;
             itemSize = new MasterGridScript().CellSize;
         }
         private void GenerateItem() {
-            if (item == null) {
+            if (Item == null) {
                 Debug.LogError($"{name}'s ItemManager tried to generate an Item while it was Null!");
                 return;
             }
-            //[TODO] Load the 3D model of the Item
-
         }
 
         public void Interact(GameObject originObject) {

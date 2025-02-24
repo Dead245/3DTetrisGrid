@@ -47,6 +47,7 @@ namespace GridSystem.PickupLogic
                     snappedCell = interactingGridManager.GetCell((Vector3)nearestSnapPoint);
                     //Snap Rotation
                     grabbedItem.GetComponent<Rotate>().SnapRotation();
+                    grabbedItem.GetComponent<Rotate>().EnterGridOffsetUpdate();
                     return;
                 }
 

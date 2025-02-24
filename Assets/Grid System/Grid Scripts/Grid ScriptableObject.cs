@@ -9,7 +9,7 @@ namespace GridSystem.Core
         private Vector3Int gridSize;
         public Vector3Int GridSize => gridSize;
 
-        public bool IsWithinBounds(Vector3Int position)
+        public bool IsWithinBounds(Vector3 position)
         {
             int minX = -gridSize.x / 2;
             int maxX = gridSize.x / 2;

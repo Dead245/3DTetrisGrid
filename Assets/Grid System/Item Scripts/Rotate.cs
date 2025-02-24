@@ -8,17 +8,10 @@ namespace GridSystem.Interactions
         private ItemManager itemMang;
         [SerializeField]
         private int outsideGridRotAmount = 5;
-
-        private Vector3Int previousCellRotation;
-
+        Vector3 baseOffsetRotation = Vector3.zero;
         void OnEnable() {
             itemMang = gameObject.GetComponent<ItemManager>();
-
-            Vector3 rot = itemMang.rotation.eulerAngles;
-            int xRot = Mathf.RoundToInt(rot.x / 90) % 4;
-            int yRot = Mathf.RoundToInt(rot.y / 90) % 4;
-            int zRot = Mathf.RoundToInt(rot.z / 90) % 4;
-            previousCellRotation = new Vector3Int(xRot, yRot, zRot);
+            EnterGridOffsetUpdate();
         }
 
         //Unmodified Rotation - Left/Right | Modified Rotation - Up/Down
@@ -52,6 +45,14 @@ namespace GridSystem.Interactions
             Quaternion gridRotation = itemMang.gridManager.transform.rotation;
             Quaternion relativeRot = Quaternion.Inverse(gridRotation) * itemMang.rotation;
             itemMang.rotation = gridRotation * GetSnappedQuat(relativeRot);
+        }
+
+        //Updating offsets due to item rotating outside of grid.
+        public void EnterGridOffsetUpdate() {
+            for (int i = 0; i < itemMang.rotatedOffsets.Count; i++) {
+                Vector3 cell = itemMang.Item.ShapeOffsets[i];
+                itemMang.rotatedOffsets[i] = Vector3Int.RoundToInt(itemMang.rotation * cell);
+            }
         }
 
         private Quaternion GetSnappedQuat(Quaternion originalQuat) {
