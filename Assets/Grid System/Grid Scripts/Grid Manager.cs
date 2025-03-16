@@ -4,43 +4,37 @@ using GridSystem.PickupLogic;
 using System.Collections.Generic;
 
 
-namespace GridSystem.Core
-{
+namespace GridSystem.Core {
     [RequireComponent(typeof(BoxCollider))]
-    public class GridManager : MonoBehaviour
-    {
+    public class GridManager : MonoBehaviour {
         [SerializeField]
         private GridScriptableObject gridInfo;
 
         private float cellSize;
 
-        private Dictionary<Vector3Int,GameObject> itemsInGrid = new();
+        private Dictionary<Vector3Int, GameObject> itemsInGrid = new();
+        [SerializeField]
         private List<Vector3Int> occupiedStatus = new();
 
         public BoxCollider boxCollider;
         private float maxSearchDistance = 3f;
 
         private Collider intersectingItem;
-        public Vector3? closestSnapPoint = null;
 
-        public void OnEnable()
-        {
+        public void OnEnable() {
             cellSize = new MasterGridScript().CellSize;
-            Vector3 sizeVector = gridInfo.GridSize;
             boxCollider = GetComponent<BoxCollider>();
-            boxCollider.size = sizeVector * cellSize;
+            boxCollider.size = (Vector3)gridInfo.GridSize * cellSize;
             boxCollider.isTrigger = true;
         }
         void Start() {
-            if (gridInfo == null)
-            {
+            if (gridInfo == null) {
                 Debug.LogWarning("Grid Scriptable Object not assigned!");
                 return;
             }
         }
 
-        private void OnTriggerStay(Collider other)
-        {
+        private void OnTriggerStay(Collider other) {
             //Ignore items that are inside the grid already
             foreach (var item in itemsInGrid.Values) {
                 if (other.gameObject.Equals(item)) return;
@@ -49,12 +43,9 @@ namespace GridSystem.Core
             Pickup pickupScript;
             if (other.TryGetComponent<ItemManager>(out itemMang)) {
                 pickupScript = Camera.main.GetComponentInParent<Pickup>();
-                if (pickupScript.GrabbedItem != null)
-                {
-                    if (pickupScript.GrabbedItem.Equals(other.gameObject))
-                    {
+                if (pickupScript.GrabbedItem != null) {
+                    if (pickupScript.GrabbedItem.Equals(other.gameObject)) {
                         intersectingItem = other;
-                        closestSnapPoint = GetNearestEmptyCell(itemMang,pickupScript.itemGrabPointTransform.position);
                         pickupScript.interactingGridManager = this;
                         itemMang.gridManager = this;
                     }
@@ -62,8 +53,7 @@ namespace GridSystem.Core
             }
         }
 
-        private void OnTriggerExit(Collider other)
-        {
+        private void OnTriggerExit(Collider other) {
             if (other.Equals(intersectingItem)) {
                 Camera.main.GetComponentInParent<Pickup>().interactingGridManager = null;
                 intersectingItem = null;
@@ -71,7 +61,6 @@ namespace GridSystem.Core
                 foreach (var item in itemsInGrid.Values) {
                     if (other.gameObject.Equals(item)) return;
                 }
-                other.transform.SetParent(null);
                 other.GetComponent<ItemManager>().gridManager = null;
             }
         }
@@ -90,7 +79,7 @@ namespace GridSystem.Core
             }
             item.transform.SetParent(transform);
             item.GetComponent<Rigidbody>().isKinematic = true;
-            itemsInGrid.Add(cellPosition,item);
+            itemsInGrid.Add(cellPosition, item);
             ItemManager itemManager = item.GetComponent<ItemManager>();
             itemManager.gridCellOrigin = cellPosition;
             return true;
@@ -99,6 +88,7 @@ namespace GridSystem.Core
         public bool RemoveItem(Vector3Int cellPosition) {
             ItemManager itemManager = itemsInGrid[cellPosition].GetComponent<ItemManager>();
             itemManager.gridCellOrigin = new Vector3Int();
+            itemsInGrid[cellPosition].transform.SetParent(null);
             itemsInGrid.Remove(cellPosition);
             foreach (var cell in itemManager.rotatedOffsets) {
                 SetCellOccupied(cell + cellPosition, false);
@@ -132,24 +122,18 @@ namespace GridSystem.Core
 
         #region Cell Functions
         private bool IsCellOccupied(Vector3Int position) {
-            if (gridInfo.IsWithinBounds(position))
-            {
-                if (occupiedStatus != null)
-                {
+            if (gridInfo.IsWithinBounds(position)) {
+                if (occupiedStatus != null) {
                     return occupiedStatus.Contains(position);
                 }
             }
             return false;
         }
         private void SetCellOccupied(Vector3Int position, bool isOccupied) {
-            if (gridInfo.IsWithinBounds(position))
-            {
-                if (isOccupied)
-                {
+            if (gridInfo.IsWithinBounds(position)) {
+                if (isOccupied) {
                     occupiedStatus.Add(position);
-                }
-                else
-                {
+                } else {
                     occupiedStatus.Remove(position);
                 }
 
@@ -174,7 +158,7 @@ namespace GridSystem.Core
 
                 // Check if cell is valid and not occupied
                 if (GridContains(current) && !visitedCells.Contains(cell)) {
-                    if (CheckItem(itemManager,cell)) {
+                    if (CheckItem(itemManager, cell)) {
                         return current;
                     }
 
@@ -199,8 +183,7 @@ namespace GridSystem.Core
             return null; // Fallback if no empty cell found
         }
         public Vector3? GetNearestCell(Vector3 position) {
-            if (!GridContains(position))
-            {
+            if (!GridContains(position)) {
                 //Position is outside the grid bounds, return an invalid position
                 return null;
             }
@@ -214,9 +197,10 @@ namespace GridSystem.Core
         }
         public Vector3Int GetCell(Vector3 position) {
             Vector3 calc = (position - transform.position) / cellSize;
-            Vector3Int cellLocation = Vector3Int.FloorToInt(calc);
+            Vector3Int cellLocation = Vector3Int.RoundToInt(calc);
             return cellLocation;
         }
         #endregion
     }
 }
+

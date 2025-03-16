@@ -1,10 +1,8 @@
 using GridSystem.Items;
 using UnityEngine;
 
-namespace GridSystem.Interactions
-{
-    public class Rotate : MonoBehaviour
-    {
+namespace GridSystem.Interactions {
+    public class Rotate : MonoBehaviour {
         private ItemManager itemMang;
         [SerializeField]
         private int outsideGridRotAmount = 5;
@@ -25,7 +23,7 @@ namespace GridSystem.Interactions
                     return;
                 }
                 // Left/Right In Grid
-                itemMang.rotation = Quaternion.AngleAxis(direction * 90f,Camera.main.transform.up) * itemMang.rotation;
+                itemMang.rotation = Quaternion.AngleAxis(direction * 90f, Camera.main.transform.up) * itemMang.rotation;
                 UpdateOffsets(2, direction);
                 return;
             }
@@ -35,10 +33,10 @@ namespace GridSystem.Interactions
                 return;
             }
             // Left/Right Out of Grid
-            itemMang.rotation = Quaternion.AngleAxis(direction * outsideGridRotAmount,Camera.main.transform.up) * itemMang.rotation;
+            itemMang.rotation = Quaternion.AngleAxis(direction * outsideGridRotAmount, Camera.main.transform.up) * itemMang.rotation;
         }
         public void SnapRotation() {
-            if (itemMang.gridManager == null) { 
+            if (itemMang.gridManager == null) {
                 Debug.LogError("Rotate/SnapRotation: itemMang.gridManger is null");
                 return;
             }
@@ -70,9 +68,7 @@ namespace GridSystem.Interactions
                             //Need to do extra for Up/Down due to player orientation
                             float camYRot = Mathf.Round(Camera.main.transform.rotation.eulerAngles.y / 90);
                             Vector3Int rotation = itemMang.rotatedOffsets[b];
-                            Debug.Log(camYRot);
-                            switch (camYRot)
-                            {
+                            switch (camYRot) {
                                 case 1: //Z Axis - ~90 degrees
                                     if (amount < 0) itemMang.rotatedOffsets[b] = new Vector3Int(-rotation.y, rotation.x, rotation.z);
                                     if (amount > 0) itemMang.rotatedOffsets[b] = new Vector3Int(rotation.y, -rotation.x, rotation.z);

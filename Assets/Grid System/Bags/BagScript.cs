@@ -2,10 +2,8 @@ using GridSystem.Interactions;
 using UnityEngine;
 using GridSystem.Core;
 
-namespace GridSystem.Bag
-{
-    public class BagScript : MonoBehaviour, IInteractable
-    {
+namespace GridSystem.Bag {
+    public class BagScript : MonoBehaviour, IInteractable {
         private bool isOpen = false;
         GridManager BagGrid;
         Rigidbody rb;
@@ -19,8 +17,7 @@ namespace GridSystem.Bag
             BagGrid.SetGridActive(isOpen);
             if (isOpen) {
                 rb.constraints = RigidbodyConstraints.FreezeAll;
-            }
-            else {
+            } else {
                 rb.constraints = RigidbodyConstraints.None;
             }
         }

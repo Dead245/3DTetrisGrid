@@ -767,7 +767,7 @@ GameObject:
   - component: {fileID: 330585545}
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -1179,7 +1179,7 @@ GameObject:
   - component: {fileID: 673770029}
   - component: {fileID: 673770025}
   - component: {fileID: 673770022}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: PlayerBody
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -1309,8 +1309,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 148e89006a038654393dd3e72017330b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemGrabPointTransform: {fileID: 1192442160}
   itemLerpSpeed: 10
+  maxRayDistance: 3
+  raySpaceBuffer: 0.2
   isItemGrabbed: 0
   grabbedItem: {fileID: 0}
   itemRB: {fileID: 0}
@@ -1328,6 +1329,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactDistance: 3
+  interactLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -1388,7 +1392,7 @@ GameObject:
   - component: {fileID: 843587468}
   - component: {fileID: 843587471}
   - component: {fileID: 843587470}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1617,7 +1621,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1192442160}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ItemPickupPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1759,7 +1763,7 @@ GameObject:
   - component: {fileID: 1236450045}
   - component: {fileID: 1236450044}
   - component: {fileID: 1236450046}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: Grid Holder / Spawner (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1935,7 +1939,7 @@ GameObject:
   - component: {fileID: 1544266100}
   - component: {fileID: 1544266099}
   - component: {fileID: 1544266101}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: Grid Holder / Spawner (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2003,7 +2007,7 @@ GameObject:
   - component: {fileID: 1813186423}
   - component: {fileID: 1813186422}
   - component: {fileID: 1813186424}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: Grid Holder / Spawner (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2071,7 +2075,7 @@ GameObject:
   - component: {fileID: 1834519763}
   - component: {fileID: 1834519762}
   - component: {fileID: 1834519764}
-  m_Layer: 2
+  m_Layer: 0
   m_Name: Grid Holder / Spawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}

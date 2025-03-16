@@ -1,14 +1,15 @@
 using UnityEngine;
 using GridSystem.PickupLogic;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
-namespace GridSystem.Interactions
-{
+namespace GridSystem.Interactions {
     //Has to be on the same object that has the player Input Map
-    public class PlayerItemInteractions : MonoBehaviour
-    {
+    public class PlayerItemInteractions : MonoBehaviour {
         [SerializeField]
         private float interactDistance = 3f;
+        [SerializeField]
+        LayerMask interactLayer;
         private bool modifiedRot = false;
 
         private Pickup pickup;
@@ -17,8 +18,7 @@ namespace GridSystem.Interactions
         }
 
         void OnRotate(InputValue rotDir) {
-            if (pickup.isItemGrabbed)
-            {
+            if (pickup.isItemGrabbed) {
                 pickup.GrabbedItem.GetComponent<Rotate>().RotateItem((int)rotDir.Get<float>(), modifiedRot);
             }
         }
@@ -33,18 +33,15 @@ namespace GridSystem.Interactions
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitInfo;
             // Check if the ray hits something within interactDistance
-            if (Physics.Raycast(ray, out hitInfo, interactDistance))
-            {
+            if (Physics.Raycast(ray, out hitInfo, interactDistance, interactLayer)) {
                 // Do stuff to whatever we hit here
                 IInteractable interactable = hitInfo.collider.GetComponent<IInteractable>();
-                if (interactable != null)
-                {
+                if (interactable != null) {
                     interactable.Interact(this.gameObject);
                 }
             }
         }
-        void OnAttack()
-        {
+        void OnAttack() {
             Debug.Log("Attack (Left Clicked)");
         }
     }

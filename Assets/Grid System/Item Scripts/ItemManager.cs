@@ -4,12 +4,11 @@ using System.Collections.Generic;
 using UnityEditor;
 using GridSystem.Interactions;
 using GridSystem.PickupLogic;
+using UnityEngine.UIElements;
 
-namespace GridSystem.Items
-{
+namespace GridSystem.Items {
     [SelectionBase]
-    public class ItemManager : MonoBehaviour, IInteractable
-    {
+    public class ItemManager : MonoBehaviour, IInteractable {
         public GridManager gridManager; //For when it supposed to be in a grid.
         public Vector3Int gridCellOrigin;
         //Eventually remove the need to set the item beforehand.
@@ -23,8 +22,7 @@ namespace GridSystem.Items
         public ItemScriptableObject Item => item;
         //[TODO] Serialized Field of the 3D model of the item
 
-        private void OnEnable()
-        {
+        private void OnEnable() {
             GenerateItem();
             foreach (var cell in Item.ShapeOffsets) {
                 rotatedOffsets.Add(cell);
@@ -47,7 +45,7 @@ namespace GridSystem.Items
                 rotation = transform.rotation;
                 if (pickup.interactingGridManager != null) {
                     //Add to interactingGridManager's grid since it means it is in a grid
-                    Vector3Int snappedCell = gridManager.GetCell((Vector3)gridManager.GetNearestEmptyCell(this,pickup.itemGrabPointTransform.position));
+                    Vector3Int snappedCell = gridManager.GetCell((Vector3)gridManager.GetNearestEmptyCell(this, pickup.itemPos));
                     if (pickup.interactingGridManager.AddItem(pickup.grabbedItem, snappedCell)) {
                         pickup.grabbedItem = null;
                         pickup.isItemGrabbed = false;
