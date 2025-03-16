@@ -1,5 +1,6 @@
 using GridSystem.Core;
 using GridSystem.Items;
+using GridSystem.Interactions;
 using System;
 using UnityEngine;
 
@@ -34,7 +35,6 @@ namespace GridSystem.PickupLogic {
                         itemLerpSpeed * Time.fixedDeltaTime);
 
                 //Item Movement Handling
-
                 itemRB.linearVelocity = UpdateHeldItemPosition() / Time.fixedDeltaTime;
             }
         }
@@ -107,18 +107,18 @@ namespace GridSystem.PickupLogic {
         }
 
         private Vector3 GetCellLocation(Vector3 hitPoint, Ray mainRay, Collider triggerCollider) {
+            ItemManager itemMang = grabbedItem.GetComponent<ItemManager>();
+            itemMang.GetComponent<Rotate>().SnapRotation();
             itemPos = mainRay.GetPoint(maxRayDistance);
             Vector3? nearestSnapPoint;
             if (interactingGridManager == null) {
                 nearestSnapPoint = null;
             } else {
-                ItemManager itemMang = grabbedItem.GetComponent<ItemManager>();
                 nearestSnapPoint = interactingGridManager.GetNearestEmptyCell(itemMang, itemPos);
             }
             //if in grid = GRID CELL POS OF END OF RAY
             if (nearestSnapPoint != null) {
                 itemPos = mainRay.GetPoint(maxRayDistance);
-                ItemManager itemMang = grabbedItem.GetComponent<ItemManager>();
                 nearestSnapPoint = interactingGridManager.GetNearestEmptyCell(itemMang, itemPos);
                 return (Vector3)nearestSnapPoint - grabbedItem.transform.position;
             } else {
@@ -133,7 +133,6 @@ namespace GridSystem.PickupLogic {
                         return itemPos - grabbedItem.transform.position;
                     }
 
-                    ItemManager itemMang = grabbedItem.GetComponent<ItemManager>();
                     nearestSnapPoint = interactingGridManager.GetNearestEmptyCell(itemMang, itemPos);
 
                     if (nearestSnapPoint == null) {
