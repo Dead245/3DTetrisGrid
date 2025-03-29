@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace GridSystem.Items
@@ -8,8 +9,11 @@ namespace GridSystem.Items
     {
         [SerializeField]
         private List<Vector3Int> shapeOffsets = new List<Vector3Int>();
-        
+        [SerializeField]
+        private GameObject itemPrefabModel;
+
         public List<Vector3Int> ShapeOffsets => shapeOffsets;
+        public GameObject ItemPrefabModel => itemPrefabModel;
 
     }
 }

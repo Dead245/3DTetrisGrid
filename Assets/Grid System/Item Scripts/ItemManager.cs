@@ -20,10 +20,12 @@ namespace GridSystem.Items {
         public List<Vector3Int> rotatedOffsets;
 
         public ItemScriptableObject Item => item;
-        //[TODO] Serialized Field of the 3D model of the item
+
+        private void Awake() {
+            GenerateItem();
+        }
 
         private void OnEnable() {
-            GenerateItem();
             foreach (var cell in Item.ShapeOffsets) {
                 rotatedOffsets.Add(cell);
             }
@@ -34,6 +36,22 @@ namespace GridSystem.Items {
             if (Item == null) {
                 Debug.LogError($"{name}'s ItemManager tried to generate an Item while it was Null!");
                 return;
+            }
+            if (Item.ItemPrefabModel == null) {
+                Debug.LogError($"{name}'s ItemManager doesn't have a item model prefab assigned!");
+                return;
+            }
+            GameObject itemPrefab = Item.ItemPrefabModel;
+            MeshFilter prefabMeshFilter = itemPrefab.GetComponent<MeshFilter>();
+            MeshFilter myMeshFilter = GetComponent<MeshFilter>();
+            if (prefabMeshFilter && myMeshFilter) {
+                myMeshFilter.sharedMesh = prefabMeshFilter.sharedMesh;
+            }
+
+            MeshRenderer prefabRenderer = itemPrefab.GetComponent<MeshRenderer>();
+            MeshRenderer myRenderer = GetComponent<MeshRenderer>();
+            if (prefabRenderer && myRenderer) {
+                myRenderer.sharedMaterials = prefabRenderer.sharedMaterials;
             }
         }
 

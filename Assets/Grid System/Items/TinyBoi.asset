@@ -15,3 +15,4 @@ MonoBehaviour:
   shapeOffsets:
   - {x: 0, y: 0, z: 0}
   - {x: 1, y: 0, z: 0}
+  itemPrefabModel: {fileID: 8804158977040481757, guid: 34b56b20cdf82974fa73a674bc43a372, type: 3}
